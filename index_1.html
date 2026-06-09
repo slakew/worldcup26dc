@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>DC World Cup 2026 — Watch Party Venues</title>
+  <link href="https://unpkg.com/maplibre-gl@4.7.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --green-dark: #0F6E56;
+      --blue: #185FA5;
+      --blue-light: #E6F1FB;
+      --amber: #BA7517;
+      --amber-light: #FAEEDA;
+      --gray: #5F5E5A;
+      --gray-light: #F1EFE8;
+      --border: #e2e2df;
+      --text: #1a1a18;
+      --text-muted: #6b6b67;
+      --bg: #ffffff;
+      --bg-secondary: #f7f6f3;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --header-h: 52px;
+      --sheet-peek: 80px;
+    }
+
+    html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-secondary); color: var(--text); }
+
+    /* ── Header ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--header-h);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px;
+      z-index: 200;
+    }
+
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .site-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+    .wc-badge {
+      background: var(--green); color: #fff;
+      font-size: 11px; font-weight: 600;
+      padding: 3px 9px; border-radius: 20px; letter-spacing: 0.3px;
+    }
+    .header-right { font-size: 12px; color: var(--text-muted); }
+
+    /* ── Desktop layout ── */
+    .layout {
+      position: fixed;
+      top: var(--header-h); left: 0; right: 0; bottom: 0;
+      display: flex;
+    }
+
+    /* ── Sidebar (desktop) ── */
+    #sidebar {
+      width: 320px; min-width: 320px;
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      z-index: 100;
+    }
+
+    .sidebar-top {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+
+    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .filter-btn {
+      font-size: 12px; padding: 5px 12px;
+      border: 1px solid var(--border); border-radius: 20px;
+      cursor: pointer; background: transparent; color: var(--text-muted);
+      transition: all 0.15s; font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .filter-btn:hover { border-color: var(--green); color: var(--green); }
+    .filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+    .legend {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
+    .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); flex-shrink: 0;
+    }
+
+    #venue-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+    .venue-card {
+      padding: 12px 14px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .venue-card:last-child { border-bottom: none; }
+    .venue-card:hover { background: var(--bg-secondary); }
+    .venue-card.selected { border-left-color: var(--green); background: var(--green-light); }
+
+    .vc-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .vc-hood { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+    .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+    .tag-team  { background: var(--blue-light); color: var(--blue); }
+    .tag-all   { background: var(--green-light); color: var(--green-dark); }
+    .tag-hours { background: var(--gray-light); color: var(--gray); }
+
+    /* ── Map ── */
+    #map-container { flex: 1; position: relative; }
+    #map { width: 100%; height: 100%; }
+
+    /* MapLibre attribution smaller */
+    .maplibregl-ctrl-attrib { font-size: 10px !important; }
+
+    /* ── Desktop popup ── */
+    #popup {
+      position: absolute; bottom: 20px; left: 20px;
+      width: 290px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      display: none; z-index: 150;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+    #popup.visible { display: block; }
+
+    .popup-close {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--bg-secondary); border: none;
+      width: 26px; height: 26px; border-radius: 50%;
+      cursor: pointer; font-size: 16px; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; transition: background 0.15s;
+    }
+    .popup-close:hover { background: var(--border); }
+
+    .popup-name { font-size: 15px; font-weight: 700; padding-right: 30px; margin-bottom: 2px; }
+    .popup-hood { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+
+    .popup-row { display: flex; gap: 8px; margin-bottom: 7px; font-size: 13px; align-items: flex-start; }
+    .popup-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); min-width: 50px; padding-top: 1px; }
+    .popup-val { color: var(--text); line-height: 1.4; }
+
+    .popup-team-badge { display: inline-block; background: var(--blue-light); color: var(--blue); font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+    .popup-divider { height: 1px; background: var(--border); margin: 8px 0; }
+    .popup-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 8px 10px; border-radius: var(--radius-sm); }
+
+    /* ── Mobile bottom sheet ── */
+    #bottom-sheet {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      border-radius: 16px 16px 0 0;
+      border-top: 1px solid var(--border);
+      z-index: 300;
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      transform: translateY(calc(100% - var(--sheet-peek)));
+      touch-action: none;
+      max-height: 85vh;
+    }
+
+    #bottom-sheet.expanded {
+      transform: translateY(0);
+    }
+
+    .sheet-handle-row {
+      display: flex; justify-content: center;
+      padding: 10px 0 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .sheet-peek-content {
+      padding: 0 16px 12px;
+      flex-shrink: 0;
+    }
+
+    .sheet-peek-label {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .sheet-filter-row {
+      display: flex; gap: 6px; overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .sheet-filter-row::-webkit-scrollbar { display: none; }
+    .sheet-filter-row .filter-btn { flex-shrink: 0; }
+
+    .sheet-divider { height: 1px; background: var(--border); margin: 0; }
+
+    #sheet-venue-list {
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
+      max-height: calc(85vh - 130px);
+    }
+
+    /* ── Venue detail sheet (mobile) ── */
+    #detail-sheet {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      border-radius: 16px 16px 0 0;
+      border-top: 1px solid var(--border);
+      z-index: 400;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      padding: 0 0 env(safe-area-inset-bottom);
+    }
+    #detail-sheet.visible { transform: translateY(0); }
+
+    .detail-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .detail-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    .detail-hood { font-size: 13px; color: var(--text-muted); }
+    .detail-close {
+      background: var(--bg-secondary); border: none;
+      width: 30px; height: 30px; border-radius: 50%;
+      cursor: pointer; font-size: 18px; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; flex-shrink: 0; margin-left: 10px;
+    }
+
+    .detail-body { padding: 14px 16px 20px; }
+    .detail-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+    .detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); min-width: 52px; padding-top: 2px; }
+    .detail-val { font-size: 14px; color: var(--text); line-height: 1.4; }
+    .detail-note { font-size: 13px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 4px; }
+
+    /* ── Mobile map pin count ── */
+    #map-venue-count {
+      display: none;
+      position: absolute; top: 12px; left: 12px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px;
+      font-size: 12px; font-weight: 500; color: var(--text);
+      z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      #sidebar { display: none; }
+      #popup { display: none !important; }
+      #bottom-sheet { display: flex; flex-direction: column; }
+      #detail-sheet { display: block; }
+      #map-venue-count { display: block; }
+      .layout { display: block; }
+      #map-container { position: fixed; top: var(--header-h); left: 0; right: 0; bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <span class="site-title">DC World Cup 2026</span>
+    <span class="wc-badge">Watch Guide</span>
+  </div>
+  <div class="header-right">Jun 11 – Jul 19</div>
+</header>
+
+<div class="layout">
+  <!-- Desktop sidebar -->
+  <div id="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-count" id="venue-count">12 venues</div>
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">All venues</button>
+        <button class="filter-btn" data-filter="team">Team-specific</button>
+        <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="dot" style="background:#1D9E75"></div> All games</div>
+      <div class="legend-item"><div class="dot" style="background:#185FA5"></div> Team-specific</div>
+      <div class="legend-item"><div class="dot" style="background:#BA7517"></div> Select games</div>
+    </div>
+    <div id="venue-list"></div>
+  </div>
+
+  <!-- Map -->
+  <div id="map-container">
+    <div id="map"></div>
+    <div id="map-venue-count"></div>
+
+    <!-- Desktop popup -->
+    <div id="popup">
+      <button class="popup-close" id="popup-close">×</button>
+      <div class="popup-name" id="popup-name"></div>
+      <div class="popup-hood" id="popup-hood"></div>
+      <div id="popup-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile bottom sheet: venue list -->
+<div id="bottom-sheet">
+  <div class="sheet-handle-row" id="sheet-handle">
+    <div class="sheet-handle"></div>
+  </div>
+  <div class="sheet-peek-content">
+    <div class="sheet-peek-label" id="sheet-label">12 venues near DC</div>
+    <div class="sheet-filter-row">
+      <button class="filter-btn active" data-filter="all">All venues</button>
+      <button class="filter-btn" data-filter="team">Team-specific</button>
+      <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
+    </div>
+  </div>
+  <div class="sheet-divider"></div>
+  <div id="sheet-venue-list"></div>
+</div>
+
+<!-- Mobile venue detail sheet -->
+<div id="detail-sheet">
+  <div class="detail-header">
+    <div>
+      <div class="detail-name" id="detail-name"></div>
+      <div class="detail-hood" id="detail-hood"></div>
+    </div>
+    <button class="detail-close" id="detail-close">×</button>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.0/dist/maplibre-gl.js"></script>
+<script>
+const venues = [
+  { name:"Hook Hall", neighborhood:"Park View", lat:38.9313, lng:-77.0231, hours:"1hr before kickoff", games:"Every match on 20-ft screen", team:null, note:"Rebranded as 'World Cup Bar DC'. Tickets from $19.99 include themed food and cocktails.", usaSpecial:false, showAllGames:true },
+  { name:"Shaw's Tavern", neighborhood:"Shaw", lat:38.9118, lng:-77.0224, hours:"Opens for every match", games:"All matches + USA watch parties", team:"🇺🇸 USA", note:"$12 crushes and $25 beer pitchers. Big USA-focused energy throughout the group stage.", usaSpecial:true, showAllGames:true },
+  { name:"Metrobar", neighborhood:"Edgewood", lat:38.9253, lng:-77.0025, hours:"Opens for all matches", games:"USA watch parties + all games", team:"🇺🇸 USA", note:"Outdoor venue near Rhode Island Ave NE. 20-ft screen, cocktails, craft beers and pizza specials.", usaSpecial:true, showAllGames:true },
+  { name:"Tom's Watch Bar", neighborhood:"Navy Yard", lat:38.8738, lng:-77.0053, hours:"1hr before kickoff", games:"All tournament matches", team:null, note:"Massive sports bar with wall-to-wall screens. Tournament-long viewing events.", usaSpecial:false, showAllGames:true },
+  { name:"Casa Teresa", neighborhood:"K Street", lat:38.9049, lng:-77.0382, hours:"Opens for every match", games:"All matches, Spain-focused parties", team:"🇪🇸 Spain", note:"Embassy of Spain's official watch-party venue. Free glass of cava after every Spain win.", usaSpecial:false, showAllGames:true },
+  { name:"Taquería Xochi", neighborhood:"Navy Yard", lat:38.8746, lng:-77.0068, hours:"Match-day hours from June 11", games:"Mexico matches + selected games", team:"🇲🇽 Mexico", note:"'Fútbol, Tacos y Chelas' series. Fan contests and match-day food specials throughout.", usaSpecial:false, showAllGames:false },
+  { name:"Sport & Social", neighborhood:"U Street", lat:38.9175, lng:-77.0333, hours:"Opens for all matches", games:"All tournament matches", team:null, note:"Upstate FTW kitchen rolls out World Cup-inspired dishes — birria tacos, shrimp siu mai, disco fries.", usaSpecial:false, showAllGames:true },
+  { name:"Boundary Stone", neighborhood:"Bloomingdale", lat:38.9212, lng:-77.0110, hours:"Regular pub hours", games:"Full tournament schedule", team:null, note:"$6 local drafts during every match. Classic neighborhood pub atmosphere.", usaSpecial:false, showAllGames:true },
+  { name:"Elephant & Castle", neighborhood:"Downtown", lat:38.8995, lng:-77.0386, hours:"Netherlands match days", games:"Netherlands matches", team:"🇳🇱 Netherlands", note:"The Dutch community's home base in DC. Wear orange!", usaSpecial:false, showAllGames:false },
+  { name:"Astro Beer Hall", neighborhood:"Downtown", lat:38.8978, lng:-77.0302, hours:"Opens for all matches", games:"All tournament matches", team:null, note:"$5 wings + $5 loaded nachos with a drink. Steps from the FIFA fan zone on the Mall.", usaSpecial:false, showAllGames:true },
+  { name:"Shipgarten", neighborhood:"Tysons", lat:38.9192, lng:-77.2270, hours:"Opens for all matches", games:"All matches + passport challenge", team:null, note:"Sprawling outdoor beer garden with themed events throughout the tournament.", usaSpecial:false, showAllGames:true },
+  { name:"Public Bar Live", neighborhood:"Dupont Circle", lat:38.9094, lng:-77.0425, hours:"Opens early for AM kickoffs", games:"All World Cup matches", team:null, note:"Sports bar opening early to catch overseas morning kickoffs.", usaSpecial:false, showAllGames:true }
+];
+
+let map, mapMarkers = [], activeFilter = 'all', selectedIdx = null;
+let sheetExpanded = false;
+const isMobile = () => window.innerWidth <= 680;
+
+function markerColor(v) {
+  if (v.team) return '#185FA5';
+  if (v.showAllGames) return '#1D9E75';
+  return '#BA7517';
+}
+
+function filtered() {
+  if (activeFilter === 'team') return venues.filter(v => v.team);
+  if (activeFilter === 'usa')  return venues.filter(v => v.usaSpecial);
+  return venues;
+}
+
+function initMap() {
+  map = new maplibregl.Map({
+    container: 'map',
+    style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+    center: [-77.04, 38.905],
+    zoom: 11.5,
+    attributionControl: true
+  });
+
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+  map.touchZoomRotate.disableRotation();
+
+  map.on('load', () => {
+    renderMarkers();
+    renderList();
+  });
+}
+
+function renderMarkers() {
+  mapMarkers.forEach(m => m.remove());
+  mapMarkers = [];
+
+  filtered().forEach(venue => {
+    const idx = venues.indexOf(venue);
+    const color = markerColor(venue);
+    const el = document.createElement('div');
+    const size = 14;
+    el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.15s;`;
+    el.addEventListener('mouseenter', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; });
+    el.addEventListener('mouseleave', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; });
+
+    const marker = new maplibregl.Marker({ element: el })
+      .setLngLat([venue.lng, venue.lat])
+      .addTo(map);
+
+    marker.getElement().addEventListener('click', () => selectVenue(idx));
+    mapMarkers.push(marker);
+  });
+}
+
+function renderList() {
+  const f = filtered();
+  const countText = `${f.length} venue${f.length !== 1 ? 's' : ''}`;
+
+  // Desktop
+  const desktopList = document.getElementById('venue-list');
+  document.getElementById('venue-count').textContent = countText;
+  desktopList.innerHTML = '';
+
+  // Mobile
+  const mobileList = document.getElementById('sheet-venue-list');
+  document.getElementById('sheet-label').textContent = `${countText} near DC`;
+  document.getElementById('map-venue-count').textContent = countText;
+  mobileList.innerHTML = '';
+
+  f.forEach(venue => {
+    const idx = venues.indexOf(venue);
+    [desktopList, mobileList].forEach(list => {
+      const card = document.createElement('div');
+      card.className = 'venue-card' + (selectedIdx === idx ? ' selected' : '');
+      card.dataset.idx = idx;
+      const teamTag = venue.team
+        ? `<span class="tag tag-team">${venue.team}</span>`
+        : `<span class="tag tag-all">All teams</span>`;
+      card.innerHTML = `
+        <div class="vc-name">${venue.name}</div>
+        <div class="vc-hood">${venue.neighborhood}</div>
+        <div class="vc-tags">${teamTag}<span class="tag tag-hours">${venue.hours}</span></div>`;
+      card.addEventListener('click', () => {
+        if (isMobile()) {
+          map.flyTo({ center: [venue.lng, venue.lat], zoom: 14, duration: 600 });
+          showDetailSheet(idx);
+          collapseSheet();
+        } else {
+          selectVenue(idx);
+        }
+      });
+      list.appendChild(card);
+    });
+  });
+}
+
+function selectVenue(idx) {
+  selectedIdx = idx;
+  const v = venues[idx];
+
+  document.querySelectorAll('.venue-card').forEach(c =>
+    c.classList.toggle('selected', parseInt(c.dataset.idx) === idx));
+
+  mapMarkers.forEach((marker, i) => {
+    const venueIdx = venues.indexOf(filtered()[i]);
+    const el = marker.getElement();
+    const isSelected = venueIdx === idx;
+    el.style.transform = isSelected ? 'scale(1.5)' : 'scale(1)';
+    el.style.zIndex = isSelected ? '10' : '1';
+  });
+
+  map.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 600 });
+
+  // Desktop popup
+  document.getElementById('popup-name').textContent = v.name;
+  document.getElementById('popup-hood').textContent = v.neighborhood;
+  const teamHtml = v.team
+    ? `<span class="popup-team-badge">${v.team}</span>`
+    : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
+  document.getElementById('popup-body').innerHTML = `
+    <div class="popup-row"><span class="popup-label">Hours</span><span class="popup-val">${v.hours}</span></div>
+    <div class="popup-row"><span class="popup-label">Games</span><span class="popup-val">${v.games}</span></div>
+    <div class="popup-row"><span class="popup-label">Team</span><span class="popup-val">${teamHtml}</span></div>
+    <div class="popup-divider"></div>
+    <div class="popup-note">${v.note}</div>`;
+  document.getElementById('popup').classList.add('visible');
+
+  const card = document.querySelector(`#venue-list .venue-card[data-idx="${idx}"]`);
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearSelection() {
+  selectedIdx = null;
+  document.getElementById('popup').classList.remove('visible');
+  document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('selected'));
+  mapMarkers.forEach(m => {
+    m.getElement().style.transform = 'scale(1)';
+    m.getElement().style.zIndex = '1';
+  });
+}
+
+// Mobile sheet
+function expandSheet() {
+  sheetExpanded = true;
+  document.getElementById('bottom-sheet').classList.add('expanded');
+}
+
+function collapseSheet() {
+  sheetExpanded = false;
+  document.getElementById('bottom-sheet').classList.remove('expanded');
+}
+
+function showDetailSheet(idx) {
+  selectedIdx = idx;
+  const v = venues[idx];
+  document.getElementById('detail-name').textContent = v.name;
+  document.getElementById('detail-hood').textContent = v.neighborhood;
+  const teamHtml = v.team
+    ? `<span class="popup-team-badge">${v.team}</span>`
+    : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
+  document.getElementById('detail-body').innerHTML = `
+    <div class="detail-row"><span class="detail-label">Hours</span><span class="detail-val">${v.hours}</span></div>
+    <div class="detail-row"><span class="detail-label">Games</span><span class="detail-val">${v.games}</span></div>
+    <div class="detail-row"><span class="detail-label">Team</span><span class="detail-val">${teamHtml}</span></div>
+    <div class="detail-note">${v.note}</div>`;
+  document.getElementById('detail-sheet').classList.add('visible');
+}
+
+function hideDetailSheet() {
+  document.getElementById('detail-sheet').classList.remove('visible');
+  selectedIdx = null;
+}
+
+// Sheet drag
+let dragStartY = 0, dragStartTranslate = 0, isDragging = false;
+const sheet = document.getElementById('bottom-sheet');
+
+sheet.addEventListener('touchstart', e => {
+  const touch = e.touches[0];
+  dragStartY = touch.clientY;
+  isDragging = true;
+}, { passive: true });
+
+sheet.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const dy = e.touches[0].clientY - dragStartY;
+  if (!sheetExpanded && dy < 0) {
+    sheet.style.transition = 'none';
+    const peekOffset = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sheet-peek')) || 80;
+    const base = window.innerHeight - peekOffset;
+    sheet.style.transform = `translateY(${Math.max(0, base + dy)}px)`;
+  }
+}, { passive: true });
+
+sheet.addEventListener('touchend', e => {
+  if (!isDragging) return;
+  isDragging = false;
+  sheet.style.transition = '';
+  const dy = e.changedTouches[0].clientY - dragStartY;
+  if (dy < -40) expandSheet();
+  else collapseSheet();
+});
+
+document.getElementById('sheet-handle').addEventListener('click', () => {
+  sheetExpanded ? collapseSheet() : expandSheet();
+});
+
+// Filter buttons (both desktop and mobile)
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.closest('.filter-row, .sheet-filter-row');
+    group.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    // Sync both filter rows
+    document.querySelectorAll(`.filter-btn[data-filter="${btn.dataset.filter}"]`).forEach(b => b.classList.add('active'));
+    activeFilter = btn.dataset.filter;
+    clearSelection();
+    hideDetailSheet();
+    renderMarkers();
+    renderList();
+  });
+});
+
+document.getElementById('popup-close').addEventListener('click', clearSelection);
+document.getElementById('detail-close').addEventListener('click', hideDetailSheet);
+
+// Prevent map scroll-trap on mobile
+map && map.getCanvas().addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+
+initMap();
+</script>
+</body>
+</html>
