@@ -758,11 +758,10 @@ function updateStrip(forDate) {
 }
 
 function adjustLayout() {
-  const h = document.getElementById('match-strip').offsetHeight;
+  const strip = document.getElementById('match-strip');
+  const h = strip.classList.contains('hidden') ? 0 : strip.offsetHeight;
   const layout = document.querySelector('.layout');
   if (layout) layout.style.top = h + 'px';
-  const mobMap = document.getElementById('mob-map-wrap');
-  if (mobMap) mobMap.style.marginTop = '0';
 }
 
 // ── Load data ──────────────────────────────────────────
@@ -796,10 +795,14 @@ async function loadVenues() {
 }
 
 async function loadMatches() {
+  showStripFallback();
   try {
     const res = await fetch(MATCHES_URL);
-    if (!res.ok) return;
-    const rows = parseCSV(await res.text()).filter(r => r.date && r.home && r.away);
+    if (!res.ok) { console.warn('Matches fetch failed:', res.status); return; }
+    const text = await res.text();
+    const rows = parseCSV(text).filter(r => r.date && r.home && r.away);
+    console.log('Loaded', rows.length, 'matches. First:', rows[0]);
+    if (!rows.length) { console.warn('No valid match rows found'); return; }
     allMatches = rows;
     const dates = [...new Set(rows.map(r => r.date))].sort();
     ['date-filter','mobile-date'].forEach(id => {
@@ -807,7 +810,17 @@ async function loadMatches() {
       if (el && dates.length) { el.min = dates[0]; el.max = dates[dates.length-1]; }
     });
     updateStrip();
-  } catch(e) {}
+  } catch(e) { console.error('loadMatches error:', e); }
+}
+
+function showStripFallback() {
+  const strip = document.getElementById('match-strip');
+  const label = document.getElementById('strip-label');
+  const items = document.getElementById('strip-items');
+  label.textContent = 'World Cup 2026';
+  items.innerHTML = '<div class="strip-empty">Jun 11 – Jul 19 · Loading match schedule…</div>';
+  strip.classList.remove('hidden');
+  adjustLayout();
 }
 
 // ── Search ─────────────────────────────────────────────
