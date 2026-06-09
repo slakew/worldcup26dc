@@ -108,49 +108,54 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .search-clear:hover { color: var(--ink); }
 
 /* Filters */
-.filter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink3); margin-bottom: 2px; }
+.filter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink3); margin-bottom: 3px; }
 .filters {
   display: flex; gap: 5px; flex-wrap: nowrap; align-items: center; overflow-x: auto; scrollbar-width: none;
 }
 .filters::-webkit-scrollbar { display: none; }
+
+/* View toggle pills */
 .pill {
-  height: 28px; padding: 0 11px;
+  height: 28px; padding: 0 12px;
   font-size: 12px; font-family: inherit;
   border: 1px solid var(--line2);
-  border-radius: 14px;
-  background: transparent; color: var(--ink2);
+  border-radius: 6px;
+  background: var(--wash); color: var(--ink2);
   cursor: pointer; white-space: nowrap;
   transition: all 0.13s;
   -webkit-tap-highlight-color: transparent;
   outline: none;
 }
-.pill:hover { border-color: var(--accent); color: var(--accent); }
-.pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pill:hover { background: var(--line); color: var(--ink); }
+.pill.on { background: var(--ink); border-color: var(--ink); color: #fff; }
 
+/* Country + date dropdowns — distinct teal tint */
 .cselect {
   height: 28px; padding: 0 22px 0 10px;
   font-size: 12px; font-family: inherit;
-  border: 1px solid var(--line2);
-  border-radius: 14px;
-  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%239a9994'/%3E%3C/svg%3E") no-repeat right 8px center;
-  color: var(--ink2);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%231D9E75'/%3E%3C/svg%3E") no-repeat right 8px center;
+  color: var(--accent);
+  font-weight: 500;
   appearance: none; -webkit-appearance: none;
   cursor: pointer; outline: none;
   transition: all 0.13s;
 }
-.cselect:hover, .cselect:focus { border-color: var(--accent); color: var(--ink); }
-.cselect.on { border-color: var(--accent); color: var(--accent); background-color: var(--accent-bg); }
+.cselect:hover, .cselect:focus { background-color: #c8ede0; }
+.cselect.on { background-color: var(--accent); color: #fff; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23ffffff'/%3E%3C/svg%3E"); }
 
 .datepick {
   height: 28px; padding: 0 10px;
   font-size: 12px; font-family: inherit;
-  border: 1px solid var(--line2); border-radius: 14px;
-  background: var(--surface); color: var(--ink2);
+  border: 1px solid var(--accent); border-radius: 6px;
+  background: var(--accent-bg); color: var(--accent);
+  font-weight: 500;
   cursor: pointer; outline: none;
   transition: all 0.13s;
 }
-.datepick:hover, .datepick:focus { border-color: var(--accent); color: var(--ink); }
-.datepick.on { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.datepick:hover, .datepick:focus { background-color: #c8ede0; }
+.datepick.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* Count + legend row */
 .meta {
@@ -724,9 +729,15 @@ function updateStrip(forDate) {
 
   if (!day.length && !forDate) {
     const next = allMatches.find(m => m.date > today);
-    if (!next) return;
-    label.textContent = 'Next';
-    items.innerHTML = '<div class="strip-empty">No games today — next: ' + next.home + ' vs ' + next.away + ' · ' + fmtDate(next.date) + '</div>';
+    if (!next) {
+      label.textContent = 'World Cup';
+      items.innerHTML = '<div class="strip-empty">Jun 11 – Jul 19, 2026 · Add matches to your sheet to show game times</div>';
+      strip.classList.remove('hidden');
+      adjustLayout();
+      return;
+    }
+    label.textContent = 'Next game';
+    items.innerHTML = '<div class="strip-empty">' + next.home + ' vs ' + next.away + ' · ' + fmtDate(next.date) + (next.time ? ' · ' + next.time : '') + '</div>';
     strip.classList.remove('hidden');
   } else if (!day.length) {
     label.textContent = fmtDate(target);
@@ -748,7 +759,10 @@ function updateStrip(forDate) {
 
 function adjustLayout() {
   const h = document.getElementById('match-strip').offsetHeight;
-  document.querySelector('.layout').style.top = h + 'px';
+  const layout = document.querySelector('.layout');
+  if (layout) layout.style.top = h + 'px';
+  const mobMap = document.getElementById('mob-map-wrap');
+  if (mobMap) mobMap.style.marginTop = '0';
 }
 
 // ── Load data ──────────────────────────────────────────
