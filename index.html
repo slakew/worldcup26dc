@@ -15,7 +15,6 @@
       --blue: #185FA5;
       --blue-light: #E6F1FB;
       --amber: #BA7517;
-      --amber-light: #FAEEDA;
       --gray: #5F5E5A;
       --gray-light: #F1EFE8;
       --border: #e2e2df;
@@ -25,17 +24,25 @@
       --bg-secondary: #f7f6f3;
       --radius: 12px;
       --radius-sm: 8px;
-      
-      --sheet-peek: 80px;
     }
 
-    html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-secondary); color: var(--text); }
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-secondary); color: var(--text); }
 
+    /* ── Desktop layout ── */
+    .layout {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      overflow: hidden;
+    }
 
-
-    .layout { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; }
-
-    #sidebar { width: 320px; min-width: 320px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; z-index: 100; }
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 320px; min-width: 320px;
+      background: var(--bg);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow: hidden; z-index: 100;
+    }
 
     .sidebar-top { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .sidebar-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
@@ -62,32 +69,22 @@
     .tag-all   { background: var(--green-light); color: var(--green-dark); }
     .tag-hours { background: var(--gray-light); color: var(--gray); }
 
+    /* ── Map ── */
     #map-container { flex: 1; position: relative; }
     #map { width: 100%; height: 100%; }
     .maplibregl-ctrl-attrib { font-size: 10px !important; }
 
-    /* Loading state */
-    #loading {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      background: var(--bg); z-index: 500; gap: 12px;
-    }
+    /* ── Loading ── */
+    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg); z-index: 500; gap: 12px; }
     #loading.hidden { display: none; }
-    .spinner {
-      width: 32px; height: 32px; border-radius: 50%;
-      border: 3px solid var(--border);
-      border-top-color: var(--green);
-      animation: spin 0.7s linear infinite;
-    }
+    .spinner { width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--green); animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { font-size: 13px; color: var(--text-muted); }
 
-    #error-msg {
-      display: none; padding: 16px; margin: 12px; border-radius: var(--radius-sm);
-      background: #FCEBEB; color: #A32D2D; font-size: 13px; line-height: 1.5;
-    }
+    #error-msg { display: none; padding: 16px; margin: 12px; border-radius: var(--radius-sm); background: #FCEBEB; color: #A32D2D; font-size: 13px; line-height: 1.5; }
     #error-msg.visible { display: block; }
 
+    /* ── Desktop popup ── */
     #popup { position: absolute; bottom: 20px; left: 20px; width: 290px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: none; z-index: 150; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
     #popup.visible { display: block; }
     .popup-close { position: absolute; top: 10px; right: 10px; background: var(--bg-secondary); border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-family: inherit; transition: background 0.15s; }
@@ -101,21 +98,25 @@
     .popup-divider { height: 1px; background: var(--border); margin: 8px 0; }
     .popup-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 8px 10px; border-radius: var(--radius-sm); }
 
-    /* Mobile */
-    #bottom-sheet { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: 16px 16px 0 0; border-top: 1px solid var(--border); z-index: 300; transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); transform: translateY(calc(100% - var(--sheet-peek))); touch-action: none; max-height: 85vh; }
-    #bottom-sheet.expanded { transform: translateY(0); }
-    .sheet-handle-row { display: flex; justify-content: center; padding: 10px 0 6px; cursor: pointer; flex-shrink: 0; }
-    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; }
-    .sheet-peek-content { padding: 0 16px 12px; flex-shrink: 0; }
-    .sheet-peek-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-    .sheet-filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-    .sheet-filter-row::-webkit-scrollbar { display: none; }
-    .sheet-filter-row .filter-btn { flex-shrink: 0; }
-    .sheet-divider { height: 1px; background: var(--border); }
-    #sheet-venue-list { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; max-height: calc(85vh - 130px); }
+    /* ── Mobile layout ── */
+    #mobile-layout { display: none; flex-direction: column; min-height: 100vh; }
 
-    #detail-sheet { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: 16px 16px 0 0; border-top: 1px solid var(--border); z-index: 400; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); padding: 0 0 env(safe-area-inset-bottom); }
-    #detail-sheet.visible { transform: translateY(0); }
+    #mobile-map { width: 100%; height: 60vw; min-height: 260px; max-height: 380px; position: relative; }
+    #mobile-map #map-mobile { width: 100%; height: 100%; }
+
+    #mobile-list-section { background: var(--bg); border-top: 1px solid var(--border); }
+
+    .mobile-list-header { padding: 12px 16px 8px; border-bottom: 1px solid var(--border); }
+    .mobile-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .mobile-filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .mobile-filter-row::-webkit-scrollbar { display: none; }
+    .mobile-filter-row .filter-btn { flex-shrink: 0; }
+
+    #mobile-venue-list { padding: 0; }
+
+    /* Mobile venue detail card */
+    #mobile-detail { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: 16px 16px 0 0; border-top: 1px solid var(--border); z-index: 400; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); padding-bottom: env(safe-area-inset-bottom); }
+    #mobile-detail.visible { transform: translateY(0); }
     .detail-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 16px 10px; border-bottom: 1px solid var(--border); }
     .detail-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
     .detail-hood { font-size: 13px; color: var(--text-muted); }
@@ -126,21 +127,17 @@
     .detail-val { font-size: 14px; color: var(--text); line-height: 1.4; }
     .detail-note { font-size: 13px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 4px; }
 
-    #map-venue-count { display: none; position: absolute; top: 12px; left: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; color: var(--text); z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-
+    /* ── Responsive switch ── */
     @media (max-width: 680px) {
-      #sidebar { display: none; }
-      #popup { display: none !important; }
-      #bottom-sheet { display: flex; flex-direction: column; }
-      #detail-sheet { display: block; }
-      #map-venue-count { display: block; }
-      .layout { display: block; }
-      #map-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; }
+      .layout { display: none; }
+      #mobile-layout { display: flex; }
+      #mobile-detail { display: block; }
     }
   </style>
 </head>
 <body>
 
+<!-- Desktop -->
 <div class="layout">
   <div id="sidebar">
     <div class="sidebar-top">
@@ -156,18 +153,11 @@
       <div class="legend-item"><div class="dot" style="background:#185FA5"></div> Team-specific</div>
       <div class="legend-item"><div class="dot" style="background:#BA7517"></div> Select games</div>
     </div>
-    <div id="venue-list">
-      <div id="error-msg"></div>
-    </div>
+    <div id="venue-list"><div id="error-msg"></div></div>
   </div>
-
   <div id="map-container">
     <div id="map"></div>
-    <div id="map-venue-count"></div>
-    <div id="loading">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading venues...</div>
-    </div>
+    <div id="loading"><div class="spinner"></div><div class="loading-text">Loading venues...</div></div>
     <div id="popup">
       <button class="popup-close" id="popup-close">×</button>
       <div class="popup-name" id="popup-name"></div>
@@ -177,23 +167,30 @@
   </div>
 </div>
 
-<div id="bottom-sheet">
-  <div class="sheet-handle-row" id="sheet-handle">
-    <div class="sheet-handle"></div>
-  </div>
-  <div class="sheet-peek-content">
-    <div class="sheet-peek-label" id="sheet-label">Loading venues...</div>
-    <div class="sheet-filter-row">
-      <button class="filter-btn active" data-filter="all">All venues</button>
-      <button class="filter-btn" data-filter="team">Team-specific</button>
-      <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
+<!-- Mobile -->
+<div id="mobile-layout">
+  <div id="mobile-map">
+    <div id="map-mobile"></div>
+    <div id="loading-mobile" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;gap:10px;">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading venues...</div>
     </div>
   </div>
-  <div class="sheet-divider"></div>
-  <div id="sheet-venue-list"></div>
+  <div id="mobile-list-section">
+    <div class="mobile-list-header">
+      <div class="mobile-count" id="mobile-count">Loading...</div>
+      <div class="mobile-filter-row">
+        <button class="filter-btn active" data-filter="all">All venues</button>
+        <button class="filter-btn" data-filter="team">Team-specific</button>
+        <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
+      </div>
+    </div>
+    <div id="mobile-venue-list"></div>
+  </div>
 </div>
 
-<div id="detail-sheet">
+<!-- Mobile detail sheet -->
+<div id="mobile-detail">
   <div class="detail-header">
     <div>
       <div class="detail-name" id="detail-name"></div>
@@ -206,21 +203,17 @@
 
 <script src="https://unpkg.com/maplibre-gl@4.7.0/dist/maplibre-gl.js"></script>
 <script>
-  // ─── PASTE YOUR GOOGLE SHEET CSV URL HERE ───────────────────────────────────
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv";
-  // ────────────────────────────────────────────────────────────────────────────
 
-  let venues = [], map, mapMarkers = [], activeFilter = 'all', selectedIdx = null;
-  let sheetExpanded = false;
+  let venues = [], desktopMap, mobileMap, desktopMarkers = [], mobileMarkers = [];
+  let activeFilter = 'all', selectedIdx = null;
   const isMobile = () => window.innerWidth <= 680;
 
-  // ── CSV parser ──
   function parseCSV(text) {
     const lines = text.trim().split('\n');
     if (lines.length < 2) return [];
     const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
     return lines.slice(1).map(line => {
-      // Handle quoted fields with commas inside
       const fields = [];
       let cur = '', inQuote = false;
       for (let i = 0; i < line.length; i++) {
@@ -232,38 +225,14 @@
       const obj = {};
       headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
       return obj;
-    }).filter(row => row.name && row.lat && row.lng).map(row => ({
-      name: row.name,
-      neighborhood: row.neighborhood || '',
-      lat: parseFloat(row.lat),
-      lng: parseFloat(row.lng),
-      hours: row.hours || '',
-      games: row.games || '',
-      team: row.team || null,
-      note: row.note || '',
-      showAllGames: row.showAllGames ? row.showAllGames.toUpperCase() === 'TRUE' : true,
-      usaSpecial: row.usaSpecial ? row.usaSpecial.toUpperCase() === 'TRUE' : false,
+    }).filter(r => r.name && r.lat && r.lng).map(r => ({
+      name: r.name, neighborhood: r.neighborhood || '',
+      lat: parseFloat(r.lat), lng: parseFloat(r.lng),
+      hours: r.hours || '', games: r.games || '',
+      team: r.team || null, note: r.note || '',
+      showAllGames: r.showAllGames ? r.showAllGames.toUpperCase() === 'TRUE' : true,
+      usaSpecial: r.usaSpecial ? r.usaSpecial.toUpperCase() === 'TRUE' : false,
     }));
-  }
-
-  async function loadVenues() {
-    try {
-      const res = await fetch(SHEET_CSV_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      venues = parseCSV(text);
-      if (venues.length === 0) throw new Error('No venues found. Check your sheet has data and the columns match.');
-      document.getElementById('loading').classList.add('hidden');
-      renderMarkers();
-      renderList();
-    } catch (err) {
-      document.getElementById('loading').classList.add('hidden');
-      const errEl = document.getElementById('error-msg');
-      errEl.textContent = `Could not load venues: ${err.message}`;
-      errEl.classList.add('visible');
-      document.getElementById('venue-count').textContent = 'Error loading data';
-      document.getElementById('sheet-label').textContent = 'Error loading data';
-    }
   }
 
   function markerColor(v) {
@@ -274,89 +243,88 @@
 
   function filtered() {
     if (activeFilter === 'team') return venues.filter(v => v.team);
-    if (activeFilter === 'usa')  return venues.filter(v => v.usaSpecial);
+    if (activeFilter === 'usa') return venues.filter(v => v.usaSpecial);
     return venues;
   }
 
-  function initMap() {
-    map = new maplibregl.Map({
-      container: 'map',
-      style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-      center: [-77.04, 38.905],
-      zoom: 11.5,
-    });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    map.touchZoomRotate.disableRotation();
-    map.on('load', loadVenues);
+  function makeMarkerEl(color, idx, mapType) {
+    const el = document.createElement('div');
+    el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.15s;`;
+    el.addEventListener('mouseenter', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; });
+    el.addEventListener('mouseleave', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; });
+    el.addEventListener('click', () => mapType === 'mobile' ? showDetail(idx) : selectVenueDesktop(idx));
+    return el;
   }
 
   function renderMarkers() {
-    mapMarkers.forEach(m => m.remove());
-    mapMarkers = [];
+    desktopMarkers.forEach(m => m.remove()); desktopMarkers = [];
+    mobileMarkers.forEach(m => m.remove()); mobileMarkers = [];
     filtered().forEach(venue => {
       const idx = venues.indexOf(venue);
       const color = markerColor(venue);
-      const el = document.createElement('div');
-      el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.15s;`;
-      el.addEventListener('mouseenter', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; });
-      el.addEventListener('mouseleave', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; });
-      const marker = new maplibregl.Marker({ element: el }).setLngLat([venue.lng, venue.lat]).addTo(map);
-      marker.getElement().addEventListener('click', () => {
-        if (isMobile()) { map.flyTo({ center: [venue.lng, venue.lat], zoom: 14, duration: 600 }); showDetailSheet(idx); }
-        else { selectVenue(idx); }
-      });
-      mapMarkers.push(marker);
+      if (desktopMap) {
+        const m = new maplibregl.Marker({ element: makeMarkerEl(color, idx, 'desktop') }).setLngLat([venue.lng, venue.lat]).addTo(desktopMap);
+        desktopMarkers.push(m);
+      }
+      if (mobileMap) {
+        const m = new maplibregl.Marker({ element: makeMarkerEl(color, idx, 'mobile') }).setLngLat([venue.lng, venue.lat]).addTo(mobileMap);
+        mobileMarkers.push(m);
+      }
     });
   }
 
-  function renderList() {
+  function renderLists() {
     const f = filtered();
     const countText = `${f.length} venue${f.length !== 1 ? 's' : ''}`;
     document.getElementById('venue-count').textContent = countText;
-    document.getElementById('sheet-label').textContent = `${countText} near DC`;
-    document.getElementById('map-venue-count').textContent = countText;
+    document.getElementById('mobile-count').textContent = countText;
 
-    [document.getElementById('venue-list'), document.getElementById('sheet-venue-list')].forEach((list, li) => {
-      list.innerHTML = li === 0 ? '<div id="error-msg"></div>' : '';
-      f.forEach(venue => {
-        const idx = venues.indexOf(venue);
+    const desktopList = document.getElementById('venue-list');
+    desktopList.innerHTML = '<div id="error-msg"></div>';
+    const mobileList = document.getElementById('mobile-venue-list');
+    mobileList.innerHTML = '';
+
+    f.forEach(venue => {
+      const idx = venues.indexOf(venue);
+      const teamTag = venue.team ? `<span class="tag tag-team">${venue.team}</span>` : `<span class="tag tag-all">All teams</span>`;
+      const inner = `<div class="vc-name">${venue.name}</div><div class="vc-hood">${venue.neighborhood}</div><div class="vc-tags">${teamTag}<span class="tag tag-hours">${venue.hours}</span></div>`;
+
+      [desktopList, mobileList].forEach((list, li) => {
         const card = document.createElement('div');
         card.className = 'venue-card' + (selectedIdx === idx ? ' selected' : '');
         card.dataset.idx = idx;
-        const teamTag = venue.team ? `<span class="tag tag-team">${venue.team}</span>` : `<span class="tag tag-all">All teams</span>`;
-        card.innerHTML = `<div class="vc-name">${venue.name}</div><div class="vc-hood">${venue.neighborhood}</div><div class="vc-tags">${teamTag}<span class="tag tag-hours">${venue.hours}</span></div>`;
+        card.innerHTML = inner;
         card.addEventListener('click', () => {
-          if (isMobile()) { map.flyTo({ center: [venue.lng, venue.lat], zoom: 14, duration: 600 }); showDetailSheet(idx); collapseSheet(); }
-          else { selectVenue(idx); }
+          if (li === 1 || isMobile()) {
+            mobileMap && mobileMap.flyTo({ center: [venue.lng, venue.lat], zoom: 14, duration: 600 });
+            showDetail(idx);
+          } else {
+            selectVenueDesktop(idx);
+          }
         });
         list.appendChild(card);
       });
     });
   }
 
-  function popupTeamHtml(v) {
-    return v.team
-      ? `<span class="popup-team-badge">${v.team}</span>`
-      : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
-  }
-
-  function selectVenue(idx) {
+  function selectVenueDesktop(idx) {
     selectedIdx = idx;
     const v = venues[idx];
     document.querySelectorAll('.venue-card').forEach(c => c.classList.toggle('selected', parseInt(c.dataset.idx) === idx));
-    mapMarkers.forEach((marker, i) => {
-      const el = marker.getElement();
+    desktopMarkers.forEach((m, i) => {
+      const el = m.getElement();
       const isSelected = venues.indexOf(filtered()[i]) === idx;
       el.style.transform = isSelected ? 'scale(1.5)' : 'scale(1)';
       el.style.zIndex = isSelected ? '10' : '1';
     });
-    map.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 600 });
+    desktopMap && desktopMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 600 });
     document.getElementById('popup-name').textContent = v.name;
     document.getElementById('popup-hood').textContent = v.neighborhood;
+    const teamHtml = v.team ? `<span class="popup-team-badge">${v.team}</span>` : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
     document.getElementById('popup-body').innerHTML = `
       <div class="popup-row"><span class="popup-label">Hours</span><span class="popup-val">${v.hours}</span></div>
       <div class="popup-row"><span class="popup-label">Games</span><span class="popup-val">${v.games}</span></div>
-      <div class="popup-row"><span class="popup-label">Team</span><span class="popup-val">${popupTeamHtml(v)}</span></div>
+      <div class="popup-row"><span class="popup-label">Team</span><span class="popup-val">${teamHtml}</span></div>
       <div class="popup-divider"></div>
       <div class="popup-note">${v.note}</div>`;
     document.getElementById('popup').classList.add('visible');
@@ -364,14 +332,7 @@
     if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  function clearSelection() {
-    selectedIdx = null;
-    document.getElementById('popup').classList.remove('visible');
-    document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('selected'));
-    mapMarkers.forEach(m => { m.getElement().style.transform = 'scale(1)'; m.getElement().style.zIndex = '1'; });
-  }
-
-  function showDetailSheet(idx) {
+  function showDetail(idx) {
     selectedIdx = idx;
     const v = venues[idx];
     document.getElementById('detail-name').textContent = v.name;
@@ -382,40 +343,54 @@
       <div class="detail-row"><span class="detail-label">Games</span><span class="detail-val">${v.games}</span></div>
       <div class="detail-row"><span class="detail-label">Team</span><span class="detail-val">${teamHtml}</span></div>
       <div class="detail-note">${v.note}</div>`;
-    document.getElementById('detail-sheet').classList.add('visible');
+    document.getElementById('mobile-detail').classList.add('visible');
   }
 
-  function hideDetailSheet() {
-    document.getElementById('detail-sheet').classList.remove('visible');
+  function hideDetail() {
+    document.getElementById('mobile-detail').classList.remove('visible');
     selectedIdx = null;
   }
 
-  function expandSheet() { sheetExpanded = true; document.getElementById('bottom-sheet').classList.add('expanded'); }
-  function collapseSheet() { sheetExpanded = false; document.getElementById('bottom-sheet').classList.remove('expanded'); }
+  function clearSelection() {
+    selectedIdx = null;
+    document.getElementById('popup').classList.remove('visible');
+    document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('selected'));
+    desktopMarkers.forEach(m => { m.getElement().style.transform = 'scale(1)'; m.getElement().style.zIndex = '1'; });
+  }
 
-  // Sheet drag
-  let dragStartY = 0, isDragging = false;
-  const sheet = document.getElementById('bottom-sheet');
-  sheet.addEventListener('touchstart', e => { dragStartY = e.touches[0].clientY; isDragging = true; }, { passive: true });
-  sheet.addEventListener('touchmove', e => {
-    if (!isDragging) return;
-    const dy = e.touches[0].clientY - dragStartY;
-    if (!sheetExpanded && dy < 0) {
-      sheet.style.transition = 'none';
-      const peekPx = 80;
-      sheet.style.transform = `translateY(${Math.max(0, window.innerHeight - peekPx + dy)}px)`;
+  async function loadVenues() {
+    try {
+      const res = await fetch(SHEET_CSV_URL);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      venues = parseCSV(await res.text());
+      if (!venues.length) throw new Error('No venues found.');
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('loading-mobile').style.display = 'none';
+      renderMarkers();
+      renderLists();
+    } catch (err) {
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('loading-mobile').style.display = 'none';
+      const el = document.getElementById('error-msg');
+      el.textContent = `Could not load venues: ${err.message}`;
+      el.classList.add('visible');
     }
-  }, { passive: true });
-  sheet.addEventListener('touchend', e => {
-    if (!isDragging) return;
-    isDragging = false;
-    sheet.style.transition = '';
-    e.changedTouches[0].clientY - dragStartY < -40 ? expandSheet() : collapseSheet();
-  });
+  }
 
-  document.getElementById('sheet-handle').addEventListener('click', () => sheetExpanded ? collapseSheet() : expandSheet());
+  const mapStyle = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+  const mapCenter = [-77.04, 38.905];
+
+  desktopMap = new maplibregl.Map({ container: 'map', style: mapStyle, center: mapCenter, zoom: 11.5 });
+  desktopMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+  desktopMap.touchZoomRotate.disableRotation();
+  desktopMap.on('load', loadVenues);
+
+  mobileMap = new maplibregl.Map({ container: 'map-mobile', style: mapStyle, center: mapCenter, zoom: 10.5 });
+  mobileMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+  mobileMap.touchZoomRotate.disableRotation();
+
   document.getElementById('popup-close').addEventListener('click', clearSelection);
-  document.getElementById('detail-close').addEventListener('click', hideDetailSheet);
+  document.getElementById('detail-close').addEventListener('click', hideDetail);
 
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -423,13 +398,11 @@
       document.querySelectorAll(`.filter-btn:not([data-filter="${btn.dataset.filter}"])`).forEach(b => b.classList.remove('active'));
       activeFilter = btn.dataset.filter;
       clearSelection();
-      hideDetailSheet();
+      hideDetail();
       renderMarkers();
-      renderList();
+      renderLists();
     });
   });
-
-  initMap();
 </script>
 </body>
 </html>
