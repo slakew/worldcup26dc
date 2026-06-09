@@ -54,7 +54,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .strip-teams em { color: rgba(255,255,255,0.3); font-style: normal; font-weight: 400; margin: 0 5px; }
 .strip-time { font-size: 11px; color: rgba(255,255,255,0.4); }
 .strip-channel { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
-.strip-empty { font-size: 11px; color: rgba(255,255,255,0.3); padding: 9px 16px; font-style: italic; }
+
 
 /* ── Desktop shell ── */
 .layout {
@@ -746,15 +746,49 @@ function updateStrip(forDate) {
   } else {
     label.textContent = forDate && forDate !== today ? fmtDate(target) : 'Today';
     items.innerHTML = day.map(m =>
-      '<div class="strip-match">' +
+      '<div class="strip-match" data-home="' + m.home + '" data-away="' + m.away + '" data-date="' + m.date + '">' +
         '<div class="strip-teams">' + m.home + '<em>vs</em>' + m.away + '</div>' +
         (m.time ? '<div class="strip-time">' + m.time + '</div>' : '') +
         (m.channel ? '<div class="strip-channel">' + m.channel + '</div>' : '') +
       '</div>'
     ).join('');
     strip.classList.remove('hidden');
+    attachStripClicks();
   }
   adjustLayout();
+}
+
+function attachStripClicks() {
+  document.querySelectorAll('.strip-match').forEach(el => {
+    el.addEventListener('click', () => {
+      const date = el.dataset.date;
+      const wasActive = el.classList.contains('active');
+      document.querySelectorAll('.strip-match').forEach(e => e.classList.remove('active'));
+      if (wasActive) {
+        doDate('');
+      } else {
+        el.classList.add('active');
+        doDate(date);
+        ['date-filter','mobile-date'].forEach(id => {
+          const d = document.getElementById(id);
+          if (d) d.value = date;
+        });
+      }
+    });
+  });
+
+  document.querySelectorAll('.strip-empty').forEach(el => {
+    el.addEventListener('click', () => {
+      const next = allMatches.find(m => m.date > new Date().toISOString().split('T')[0]);
+      if (next) {
+        doDate(next.date);
+        ['date-filter','mobile-date'].forEach(id => {
+          const d = document.getElementById(id);
+          if (d) d.value = next.date;
+        });
+      }
+    });
+  });
 }
 
 function adjustLayout() {
@@ -798,10 +832,9 @@ async function loadMatches() {
   showStripFallback();
   try {
     const res = await fetch(MATCHES_URL);
-    if (!res.ok) { console.warn('Matches fetch failed:', res.status); return; }
+    if (!res.ok) return;
     const text = await res.text();
     const rows = parseCSV(text).filter(r => r.date && r.home && r.away);
-    console.log('Loaded', rows.length, 'matches. First:', rows[0]);
     if (!rows.length) { console.warn('No valid match rows found'); return; }
     allMatches = rows;
     const dates = [...new Set(rows.map(r => r.date))].sort();
@@ -810,7 +843,7 @@ async function loadMatches() {
       if (el && dates.length) { el.min = dates[0]; el.max = dates[dates.length-1]; }
     });
     updateStrip();
-  } catch(e) { console.error('loadMatches error:', e); }
+  } catch(e) {}
 }
 
 function showStripFallback() {
@@ -902,6 +935,9 @@ document.querySelectorAll('.pill[data-filter]').forEach(btn => {
     renderMarkers(); renderLists();
   });
 });
+
+// ── Show strip immediately on load ────────────────────
+showStripFallback();
 
 // ── Maps ───────────────────────────────────────────────
 const STYLE  = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
