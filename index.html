@@ -9,227 +9,501 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green: #1D9E75;
+      --green:       #1D9E75;
       --green-light: #E1F5EE;
-      --green-dark: #0F6E56;
-      --blue: #185FA5;
-      --blue-light: #E6F1FB;
-      --amber: #BA7517;
-      --gray: #5F5E5A;
-      --gray-light: #F1EFE8;
-      --border: #e2e2df;
-      --text: #1a1a18;
-      --text-muted: #6b6b67;
-      --bg: #ffffff;
-      --bg-secondary: #f7f6f3;
-      --radius: 12px;
-      --radius-sm: 8px;
+      --green-dark:  #0F6E56;
+      --blue:        #185FA5;
+      --blue-light:  #E6F1FB;
+      --amber:       #BA7517;
+      --gray:        #5F5E5A;
+      --gray-light:  #F1EFE8;
+      --border:      #e2e2df;
+      --text:        #1a1a18;
+      --muted:       #6b6b67;
+      --bg:          #ffffff;
+      --bg2:         #f7f6f3;
+      --r:           12px;
+      --r-sm:        8px;
     }
 
-    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg-secondary); color: var(--text); }
-
-    /* ── Desktop layout ── */
-    .layout {
-      position: fixed; left: 0; right: 0; bottom: 0;
-      display: flex;
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg2);
       overflow: hidden;
-      top: 0;
     }
 
-    /* ── Sidebar ── */
+    /* ─── Match strip ─────────────────────────────────── */
+    #match-strip {
+      background: #1a1a18;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      overflow: hidden;
+      width: 100%;
+      flex-shrink: 0;
+    }
+    #match-strip.hidden { display: none; }
+    .strip-inner {
+      display: flex;
+      align-items: stretch;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .strip-inner::-webkit-scrollbar { display: none; }
+    .strip-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--green);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      flex-shrink: 0;
+    }
+    .strip-match {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .strip-teams { font-size: 13px; font-weight: 600; color: #fff; }
+    .strip-teams em { color: rgba(255,255,255,0.35); font-style: normal; font-weight: 400; margin: 0 5px; }
+    .strip-time { font-size: 11px; color: rgba(255,255,255,0.5); }
+    .strip-channel {
+      font-size: 10px;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.65);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+    .strip-empty { font-size: 12px; color: rgba(255,255,255,0.35); padding: 10px 16px; font-style: italic; }
+
+    /* ─── Desktop layout ──────────────────────────────── */
+    .layout {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+    }
+
+    /* ─── Sidebar ─────────────────────────────────────── */
     #sidebar {
-      width: 320px; min-width: 320px;
+      width: 320px;
+      min-width: 320px;
       background: var(--bg);
       border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      overflow: hidden; z-index: 100;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
     }
 
-    .sidebar-top { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sidebar-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .sidebar-controls {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-    /* Match strip */
-    #match-strip { background: #1a1a18; color: #fff; padding: 0; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.08); width: 100%; }
-    #match-strip.hidden { display: none; }
-    .match-strip-inner { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; gap: 0; }
-    .match-strip-inner::-webkit-scrollbar { display: none; }
-    .match-today-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #1D9E75; padding: 10px 14px; display: flex; align-items: center; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
-    .match-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-right: 1px solid rgba(255,255,255,0.08); white-space: nowrap; flex-shrink: 0; }
-    .match-teams { font-size: 13px; font-weight: 600; color: #fff; }
-    .match-teams span { color: rgba(255,255,255,0.4); font-weight: 400; margin: 0 4px; }
-    .match-time { font-size: 11px; color: rgba(255,255,255,0.55); }
-    .match-channel { font-size: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px; }
-    .match-no-games { font-size: 12px; color: rgba(255,255,255,0.4); padding: 10px 16px; font-style: italic; }
-    /* Near me button */
-    .filter-select { font-size: 12px; padding: 5px 28px 5px 10px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b6b67'/%3E%3C/svg%3E") no-repeat right 10px center; color: var(--text-muted); font-family: inherit; appearance: none; -webkit-appearance: none; transition: all 0.15s; outline: none; }
-    .filter-select:focus, .filter-select:hover { border-color: var(--green); color: var(--text); }
-    .filter-select.active { border-color: var(--green); color: var(--green); background-color: var(--green-light); }
-    .date-input { font-size: 12px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: var(--bg); color: var(--text-muted); font-family: inherit; appearance: none; outline: none; transition: all 0.15s; }
-    .date-input:focus, .date-input:hover { border-color: var(--green); color: var(--text); }
-    .date-input.active { border-color: var(--green); color: var(--green); background-color: var(--green-light); }
-    .date-clear { font-size: 11px; color: var(--text-muted); cursor: pointer; background: none; border: none; font-family: inherit; padding: 0; display: none; }
-    .date-clear.visible { display: inline; }
-    .filter-divider { width: 1px; background: var(--border); height: 20px; margin: 0 2px; flex-shrink: 0; }
-    .near-me-btn { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.15s; font-family: inherit; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
-    .near-me-btn:hover { border-color: var(--green); color: var(--green); }
-    .near-me-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
-    .search-wrap { position: relative; margin-bottom: 8px; }
-    .search-input { width: 100%; padding: 7px 32px 7px 10px; font-size: 13px; font-family: inherit; border: 1px solid var(--border); border-radius: 20px; background: var(--bg-secondary); color: var(--text); outline: none; transition: border-color 0.15s; }
+    /* Search */
+    .search-wrap { position: relative; }
+    .search-input {
+      width: 100%;
+      padding: 8px 32px 8px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg2);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
     .search-input:focus { border-color: var(--green); background: var(--bg); }
-    .search-input::placeholder { color: var(--text-muted); }
-    .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 16px; line-height: 1; display: none; font-family: inherit; padding: 0; }
-    .search-clear.visible { display: block; }
-    .empty-state { padding: 32px 16px; text-align: center; color: var(--text-muted); }
-    .empty-state-icon { font-size: 28px; margin-bottom: 10px; }
-    .empty-state-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-    .empty-state-sub { font-size: 12px; line-height: 1.5; }
+    .search-input::placeholder { color: var(--muted); }
+    .search-clear {
+      position: absolute;
+      right: 10px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1;
+      display: none;
+      font-family: inherit;
+      padding: 0;
+    }
+    .search-clear.on { display: block; }
 
-    .filter-btn { font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.15s; font-family: inherit; -webkit-tap-highlight-color: transparent; }
-    .filter-btn:hover { border-color: var(--green); color: var(--green); }
-    .filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+    /* Filter row */
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pill {
+      font-size: 12px;
+      padding: 4px 12px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+    .pill:hover { border-color: var(--green); color: var(--green); }
+    .pill.on { background: var(--green); color: #fff; border-color: var(--green); }
 
-    .legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
-    .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); flex-shrink: 0; }
+    /* Country dropdown */
+    .country-select {
+      font-size: 12px;
+      padding: 4px 26px 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      color: var(--muted);
+      font-family: inherit;
+      background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%236b6b67'/%3E%3C/svg%3E") no-repeat right 9px center;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      transition: all 0.15s;
+    }
+    .country-select:hover, .country-select:focus { border-color: var(--green); color: var(--text); }
+    .country-select.on { border-color: var(--green); color: var(--green); background-color: var(--green-light); }
 
+    /* Date input */
+    .date-input {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--muted);
+      font-family: inherit;
+      background: var(--bg);
+      outline: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .date-input:hover, .date-input:focus { border-color: var(--green); color: var(--text); }
+    .date-input.on { border-color: var(--green); color: var(--green); background: var(--green-light); }
+
+    /* Venue count */
+    .venue-count { font-size: 11px; color: var(--muted); }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 7px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+    .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+      flex-shrink: 0;
+    }
+
+    /* Venue list */
     #venue-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-    .venue-card { padding: 12px 14px; cursor: pointer; border-left: 3px solid transparent; border-bottom: 1px solid var(--border); transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
+    .venue-card {
+      padding: 11px 14px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
     .venue-card:last-child { border-bottom: none; }
-    .venue-card:hover { background: var(--bg-secondary); }
-    .venue-card.selected { border-left-color: var(--green); background: var(--green-light); }
-    .vc-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-    .vc-hood { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-    .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-    .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
-    .tag-team  { background: var(--blue-light); color: var(--blue); }
-    .tag-all   { background: var(--green-light); color: var(--green-dark); }
-    .tag-hours { background: var(--gray-light); color: var(--gray); }
+    .venue-card:hover { background: var(--bg2); }
+    .venue-card.on { border-left-color: var(--green); background: var(--green-light); }
 
-    /* ── Map ── */
-    #map-container { flex: 1; position: relative; }
+    .vc-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .vc-hood { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .tag-team  { background: var(--blue-light);  color: var(--blue); }
+    .tag-all   { background: var(--green-light); color: var(--green-dark); }
+    .tag-hours { background: var(--gray-light);  color: var(--gray); }
+
+    /* Empty state */
+    .empty {
+      padding: 40px 16px;
+      text-align: center;
+    }
+    .empty-icon { font-size: 26px; margin-bottom: 10px; }
+    .empty-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .empty-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* Error */
+    .error-msg {
+      display: none;
+      margin: 12px;
+      padding: 12px 14px;
+      border-radius: var(--r-sm);
+      background: #FCEBEB;
+      color: #A32D2D;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .error-msg.on { display: block; }
+
+    /* ─── Map ─────────────────────────────────────────── */
+    #map-wrap { flex: 1; position: relative; }
     #map { width: 100%; height: 100%; }
     .maplibregl-ctrl-attrib { font-size: 10px !important; }
 
-    /* ── Loading ── */
-    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg); z-index: 500; gap: 12px; }
+    /* Loading overlay */
+    #loading {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg);
+      z-index: 50;
+      gap: 12px;
+    }
     #loading.hidden { display: none; }
-    .spinner { width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--green); animation: spin 0.7s linear infinite; }
+    .spinner {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 3px solid var(--border);
+      border-top-color: var(--green);
+      animation: spin 0.7s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 13px; color: var(--text-muted); }
+    .loading-text { font-size: 13px; color: var(--muted); }
 
-    #error-msg { display: none; padding: 16px; margin: 12px; border-radius: var(--radius-sm); background: #FCEBEB; color: #A32D2D; font-size: 13px; line-height: 1.5; }
-    #error-msg.visible { display: block; }
-
-    /* ── Desktop popup ── */
-    #popup { position: absolute; bottom: 20px; left: 20px; width: 290px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: none; z-index: 150; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
-    #popup.visible { display: block; }
-    .popup-close { position: absolute; top: 10px; right: 10px; background: var(--bg-secondary); border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-family: inherit; transition: background 0.15s; }
-    .popup-close:hover { background: var(--border); }
-    .popup-name { font-size: 15px; font-weight: 700; padding-right: 30px; margin-bottom: 2px; }
-    .popup-hood { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+    /* Desktop venue popup */
+    #popup {
+      position: absolute;
+      bottom: 20px; left: 20px;
+      width: 288px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px;
+      display: none;
+      z-index: 20;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.09);
+    }
+    #popup.on { display: block; }
+    .popup-x {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--bg2); border: none;
+      width: 26px; height: 26px; border-radius: 50%;
+      cursor: pointer; font-size: 16px; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit;
+    }
+    .popup-x:hover { background: var(--border); }
+    .popup-name { font-size: 15px; font-weight: 700; padding-right: 28px; margin-bottom: 2px; }
+    .popup-hood { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
     .popup-row { display: flex; gap: 8px; margin-bottom: 7px; font-size: 13px; align-items: flex-start; }
-    .popup-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); min-width: 50px; padding-top: 1px; }
+    .popup-lbl {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--muted); min-width: 48px; padding-top: 2px;
+    }
     .popup-val { color: var(--text); line-height: 1.4; }
-    .popup-team-badge { display: inline-block; background: var(--blue-light); color: var(--blue); font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
-    .popup-divider { height: 1px; background: var(--border); margin: 8px 0; }
-    .popup-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 8px 10px; border-radius: var(--radius-sm); }
+    .popup-hr { height: 1px; background: var(--border); margin: 8px 0; }
+    .popup-note { font-size: 12px; color: var(--muted); line-height: 1.5; background: var(--bg2); padding: 8px 10px; border-radius: var(--r-sm); }
+    .popup-maps {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 10px; font-size: 12px;
+      color: var(--green); text-decoration: none; font-weight: 600;
+    }
+    .popup-maps:hover { text-decoration: underline; }
+    .team-badge {
+      display: inline-block;
+      background: var(--blue-light); color: var(--blue);
+      font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 20px;
+    }
 
-    /* ── Mobile layout ── */
-    #mobile-layout { display: none; flex-direction: column; min-height: 100vh; }
+    /* ─── Mobile ──────────────────────────────────────── */
+    #mobile-layout { display: none; flex-direction: column; }
 
-    #mobile-map { width: 100%; height: 60vw; min-height: 260px; max-height: 380px; position: relative; }
-    #mobile-map #map-mobile { width: 100%; height: 100%; }
+    #mobile-map-wrap {
+      width: 100%;
+      height: 56vw;
+      min-height: 240px;
+      max-height: 360px;
+      position: relative;
+      flex-shrink: 0;
+    }
+    #map-mobile { width: 100%; height: 100%; }
+    #loading-mobile {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg); gap: 10px;
+    }
 
-    #mobile-list-section { background: var(--bg); border-top: 1px solid var(--border); }
+    #mobile-list {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+    }
+    .mobile-controls {
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mobile-count { font-size: 11px; color: var(--muted); }
+    .mobile-filters {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .mobile-filters::-webkit-scrollbar { display: none; }
+    .mobile-filters .pill,
+    .mobile-filters .country-select,
+    .mobile-filters .date-input { flex-shrink: 0; }
 
-    .mobile-list-header { padding: 12px 16px 8px; border-bottom: 1px solid var(--border); }
-    .mobile-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-    .mobile-filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .mobile-filter-row::-webkit-scrollbar { display: none; }
-    .mobile-filter-row .filter-btn { flex-shrink: 0; }
+    #mobile-venue-list { overflow-y: auto; }
 
-    #mobile-venue-list { padding: 0; }
+    /* Mobile detail sheet */
+    #detail-sheet {
+      display: none;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      border-radius: 16px 16px 0 0;
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    #detail-sheet.on { transform: translateY(0); }
+    .sheet-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sheet-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+    .sheet-hood { font-size: 13px; color: var(--muted); }
+    .sheet-x {
+      background: var(--bg2); border: none;
+      width: 30px; height: 30px; border-radius: 50%;
+      cursor: pointer; font-size: 18px; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-family: inherit; flex-shrink: 0; margin-left: 10px;
+    }
+    .sheet-body { padding: 14px 16px 20px; }
+    .sheet-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
+    .sheet-lbl {
+      font-size: 10px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      color: var(--muted); min-width: 50px; padding-top: 2px;
+    }
+    .sheet-val { font-size: 14px; color: var(--text); line-height: 1.4; }
+    .sheet-note {
+      font-size: 13px; color: var(--muted); line-height: 1.5;
+      background: var(--bg2); padding: 10px 12px;
+      border-radius: var(--r-sm); margin-top: 4px;
+    }
+    .sheet-maps {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 12px; font-size: 13px;
+      color: var(--green); text-decoration: none; font-weight: 600;
+    }
+    .sheet-maps:hover { text-decoration: underline; }
 
-    /* Mobile venue detail card */
-    #mobile-detail { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: 16px 16px 0 0; border-top: 1px solid var(--border); z-index: 400; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); padding-bottom: env(safe-area-inset-bottom); }
-    #mobile-detail.visible { transform: translateY(0); }
-    .detail-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 16px 10px; border-bottom: 1px solid var(--border); }
-    .detail-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
-    .detail-hood { font-size: 13px; color: var(--text-muted); }
-    .detail-close { background: var(--bg-secondary); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 18px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-family: inherit; flex-shrink: 0; margin-left: 10px; }
-    .detail-body { padding: 14px 16px 20px; }
-    .detail-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
-    .detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); min-width: 52px; padding-top: 2px; }
-    .detail-val { font-size: 14px; color: var(--text); line-height: 1.4; }
-    .detail-note { font-size: 13px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 4px; }
-
-    /* ── Responsive switch ── */
+    /* ─── Responsive switch ───────────────────────────── */
     @media (max-width: 680px) {
+      html, body { overflow: auto; }
       .layout { display: none; }
+      #match-strip { position: sticky; top: 0; z-index: 50; }
       #mobile-layout { display: flex; }
-      #mobile-detail { display: block; }
+      #detail-sheet { display: block; }
     }
   </style>
 </head>
 <body>
 
+<!-- Match strip -->
+<div id="match-strip" class="hidden">
+  <div class="strip-inner">
+    <div class="strip-label" id="strip-label">Today</div>
+    <div id="strip-items"></div>
+  </div>
+</div>
+
 <!-- Desktop -->
-<div id="match-strip" class="hidden"><div class="match-strip-inner"><div class="match-today-label">Today</div><div id="match-strip-items"></div></div></div>
 <div class="layout">
   <div id="sidebar">
-    <div class="sidebar-top">
+    <div class="sidebar-controls">
       <div class="search-wrap">
-        <input class="search-input" id="search-input" type="text" placeholder="Search by name, neighborhood, zip code…" />
-        <button class="search-clear" id="search-clear">×</button>
+        <input class="search-input" id="search-input" type="text" placeholder="Search name, neighborhood, zip…" />
+        <button class="search-clear" id="search-clear" aria-label="Clear search">×</button>
       </div>
-      <div class="sidebar-count" id="venue-count">Loading...</div>
       <div class="filter-row">
-        <button class="filter-btn active" data-filter="all">All venues</button>
-        <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
-        <select class="filter-select" id="country-select">
+        <button class="pill on" data-filter="all">All venues</button>
+        <button class="pill" data-filter="usa">🇺🇸 USA bars</button>
+        <select class="country-select" id="country-select" aria-label="Filter by country">
           <option value="">All countries</option>
-          <option value="🇺🇸 USA">🇺🇸 USA</option>
-          <option value="🇲🇽 Mexico">🇲🇽 Mexico</option>
-          <option value="🇪🇸 Spain">🇪🇸 Spain</option>
-          <option value="🇳🇱 Netherlands">🇳🇱 Netherlands</option>
-          <option value="🇧🇷 Brazil">🇧🇷 Brazil</option>
-          <option value="🇩🇪 Germany">🇩🇪 Germany</option>
-          <option value="🇫🇷 France">🇫🇷 France</option>
-          <option value="🇦🇷 Argentina">🇦🇷 Argentina</option>
-          <option value="🇵🇹 Portugal">🇵🇹 Portugal</option>
-          <option value="🇮🇹 Italy">🇮🇹 Italy</option>
-          <option value="🇯🇵 Japan">🇯🇵 Japan</option>
-          <option value="🇰🇷 South Korea">🇰🇷 South Korea</option>
-          <option value="🇳🇬 Nigeria">🇳🇬 Nigeria</option>
-          <option value="🇬🇭 Ghana">🇬🇭 Ghana</option>
-          <option value="🇸🇳 Senegal">🇸🇳 Senegal</option>
-          <option value="🇨🇴 Colombia">🇨🇴 Colombia</option>
-          <option value="🇨🇷 Croatia">🇨🇷 Croatia</option>
-          <option value="🇦🇺 Australia">🇦🇺 Australia</option>
-          <option value="🇵🇾 Paraguay">🇵🇾 Paraguay</option>
-          <option value="🇹🇷 Turkey">🇹🇷 Turkey</option>
+          <option>🇺🇸 USA</option><option>🇲🇽 Mexico</option><option>🇪🇸 Spain</option>
+          <option>🇳🇱 Netherlands</option><option>🇧🇷 Brazil</option><option>🇩🇪 Germany</option>
+          <option>🇫🇷 France</option><option>🇦🇷 Argentina</option><option>🇵🇹 Portugal</option>
+          <option>🇮🇹 Italy</option><option>🇯🇵 Japan</option><option>🇰🇷 South Korea</option>
+          <option>🇳🇬 Nigeria</option><option>🇬🇭 Ghana</option><option>🇸🇳 Senegal</option>
+          <option>🇨🇴 Colombia</option><option>🇨🇷 Croatia</option><option>🇦🇺 Australia</option>
+          <option>🇵🇾 Paraguay</option><option>🇹🇷 Turkey</option>
         </select>
-        <div class="filter-divider"></div>
-        <input type="date" class="date-input" id="date-filter" title="Filter by match date" />
-        <button class="date-clear" id="date-clear">✕ clear date</button>
-        <div class="filter-divider"></div>
-        <button class="near-me-btn" id="near-me-btn">📍 Near me</button>
+        <input type="date" class="date-input" id="date-filter" aria-label="Filter by match date" />
+        <button class="pill" id="near-me-btn">📍 Near me</button>
       </div>
+      <div class="venue-count" id="venue-count">Loading…</div>
     </div>
     <div class="legend">
-      <div class="legend-item"><div class="dot" style="background:#1D9E75"></div> Shows all games</div>
-      <div class="legend-item"><div class="dot" style="background:#185FA5"></div> One country only</div>
-      <div class="legend-item"><div class="dot" style="background:#BA7517"></div> Select matches</div>
+      <div class="legend-item"><div class="dot" style="background:#1D9E75"></div>Shows all games</div>
+      <div class="legend-item"><div class="dot" style="background:#185FA5"></div>One country only</div>
+      <div class="legend-item"><div class="dot" style="background:#BA7517"></div>Select matches</div>
     </div>
-    <div id="venue-list"><div id="error-msg"></div></div>
+    <div id="venue-list">
+      <div class="error-msg" id="error-msg"></div>
+    </div>
   </div>
-  <div id="map-container">
+
+  <div id="map-wrap">
     <div id="map"></div>
-    <div id="loading"><div class="spinner"></div><div class="loading-text">Loading venues...</div></div>
+    <div id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading venues…</div>
+    </div>
     <div id="popup">
-      <button class="popup-close" id="popup-close">×</button>
+      <button class="popup-x" id="popup-close">×</button>
       <div class="popup-name" id="popup-name"></div>
       <div class="popup-hood" id="popup-hood"></div>
       <div id="popup-body"></div>
@@ -239,817 +513,162 @@
 
 <!-- Mobile -->
 <div id="mobile-layout">
-  <div id="mobile-map">
+  <div id="mobile-map-wrap">
     <div id="map-mobile"></div>
-    <div id="loading-mobile" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;gap:10px;">
+    <div id="loading-mobile">
       <div class="spinner"></div>
-      <div class="loading-text">Loading venues...</div>
+      <div class="loading-text">Loading venues…</div>
     </div>
   </div>
-  <div id="mobile-list-section">
-    <div class="mobile-list-header">
+  <div id="mobile-list">
+    <div class="mobile-controls">
       <div class="search-wrap">
-        <input class="search-input" id="mobile-search-input" type="text" placeholder="Search by name, neighborhood, zip code…" />
-        <button class="search-clear" id="mobile-search-clear">×</button>
+        <input class="search-input" id="mobile-search" type="text" placeholder="Search name, neighborhood, zip…" />
+        <button class="search-clear" id="mobile-search-clear" aria-label="Clear search">×</button>
       </div>
-      <div class="mobile-count" id="mobile-count">Loading...</div>
-      <div class="mobile-filter-row">
-        <button class="filter-btn active" data-filter="all">All venues</button>
-        <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
-        <select class="filter-select" id="mobile-country-select">
+      <div class="mobile-filters">
+        <button class="pill on" data-filter="all">All venues</button>
+        <button class="pill" data-filter="usa">🇺🇸 USA bars</button>
+        <select class="country-select" id="mobile-country" aria-label="Filter by country">
           <option value="">All countries</option>
-          <option value="🇺🇸 USA">🇺🇸 USA</option>
-          <option value="🇲🇽 Mexico">🇲🇽 Mexico</option>
-          <option value="🇪🇸 Spain">🇪🇸 Spain</option>
-          <option value="🇳🇱 Netherlands">🇳🇱 Netherlands</option>
-          <option value="🇧🇷 Brazil">🇧🇷 Brazil</option>
-          <option value="🇩🇪 Germany">🇩🇪 Germany</option>
-          <option value="🇫🇷 France">🇫🇷 France</option>
-          <option value="🇦🇷 Argentina">🇦🇷 Argentina</option>
-          <option value="🇵🇹 Portugal">🇵🇹 Portugal</option>
-          <option value="🇮🇹 Italy">🇮🇹 Italy</option>
-          <option value="🇯🇵 Japan">🇯🇵 Japan</option>
-          <option value="🇰🇷 South Korea">🇰🇷 South Korea</option>
-          <option value="🇳🇬 Nigeria">🇳🇬 Nigeria</option>
-          <option value="🇬🇭 Ghana">🇬🇭 Ghana</option>
-          <option value="🇸🇳 Senegal">🇸🇳 Senegal</option>
-          <option value="🇨🇴 Colombia">🇨🇴 Colombia</option>
-          <option value="🇨🇷 Croatia">🇨🇷 Croatia</option>
-          <option value="🇦🇺 Australia">🇦🇺 Australia</option>
-          <option value="🇵🇾 Paraguay">🇵🇾 Paraguay</option>
-          <option value="🇹🇷 Turkey">🇹🇷 Turkey</option>
+          <option>🇺🇸 USA</option><option>🇲🇽 Mexico</option><option>🇪🇸 Spain</option>
+          <option>🇳🇱 Netherlands</option><option>🇧🇷 Brazil</option><option>🇩🇪 Germany</option>
+          <option>🇫🇷 France</option><option>🇦🇷 Argentina</option><option>🇵🇹 Portugal</option>
+          <option>🇮🇹 Italy</option><option>🇯🇵 Japan</option><option>🇰🇷 South Korea</option>
+          <option>🇳🇬 Nigeria</option><option>🇬🇭 Ghana</option><option>🇸🇳 Senegal</option>
+          <option>🇨🇴 Colombia</option><option>🇨🇷 Croatia</option><option>🇦🇺 Australia</option>
+          <option>🇵🇾 Paraguay</option><option>🇹🇷 Turkey</option>
         </select>
-        <input type="date" class="date-input" id="mobile-date-filter" title="Filter by match date" />
-        <button class="near-me-btn" id="mobile-near-me-btn">📍 Near me</button>
+        <input type="date" class="date-input" id="mobile-date" aria-label="Filter by match date" />
+        <button class="pill" id="mobile-near-me">📍 Near me</button>
       </div>
+      <div class="mobile-count" id="mobile-count">Loading…</div>
     </div>
     <div id="mobile-venue-list"></div>
   </div>
 </div>
 
 <!-- Mobile detail sheet -->
-<div id="mobile-detail">
-  <div class="detail-header">
+<div id="detail-sheet">
+  <div class="sheet-header">
     <div>
-      <div class="detail-name" id="detail-name"></div>
-      <div class="detail-hood" id="detail-hood"></div>
+      <div class="sheet-name" id="sheet-name"></div>
+      <div class="sheet-hood" id="sheet-hood"></div>
     </div>
-    <button class="detail-close" id="detail-close">×</button>
+    <button class="sheet-x" id="sheet-close">×</button>
   </div>
-  <div class="detail-body" id="detail-body"></div>
+  <div class="sheet-body" id="sheet-body"></div>
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.0/dist/maplibre-gl.js"></script>
 <script>
-  const MATCHES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=903992166&single=true&output=csv";
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv";
+const SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv';
+const MATCHES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=903992166&single=true&output=csv';
 
-  let venues = [], desktopMap, mobileMap, desktopMarkers = [], mobileMarkers = [];
-  let activeFilter = 'all', selectedIdx = null, searchQuery = '', venuesLoaded = false, countryFilter = '', dateFilter = '', allMatches = [];
-  const isMobile = () => window.innerWidth <= 680;
+// ── State ──────────────────────────────────────────────
+let venues = [], allMatches = [];
+let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
+let venuesLoaded = false;
+let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '';
+let nearMeOn = false, userLat = null, userLng = null;
+let selectedIdx = null;
 
-  const DC_ZIPS = {
-    '20001': ['shaw', 'bloomingdale', 'ledroit park', 'edgewood'],
-    '20002': ['edgewood', 'brookland', 'trinidad', 'capitol hill'],
-    '20003': ['capitol hill', 'navy yard', 'capitol riverfront'],
-    '20004': ['downtown', 'penn quarter', 'chinatown'],
-    '20005': ['downtown', 'thomas circle', 'logan circle'],
-    '20006': ['downtown', 'foggy bottom', 'west end'],
-    '20007': ['georgetown', 'glover park'],
-    '20008': ['woodley park', 'cleveland park', 'van ness'],
-    '20009': ['adams morgan', 'dupont circle', 'columbia heights', 'u street'],
-    '20010': ['columbia heights', 'mount pleasant'],
-    '20011': ['petworth', 'brightwood', 'fort totten'],
-    '20012': ['takoma', 'brightwood'],
-    '20015': ['chevy chase'],
-    '20016': ['american university', 'tenleytown', 'friendship heights'],
-    '20017': ['brookland', 'michigan park'],
-    '20018': ['northeast', 'woodridge'],
-    '20019': ['capitol heights', 'benning'],
-    '20020': ['anacostia', 'congress heights'],
-    '20024': ['southwest waterfront', 'wharf'],
-    '20032': ['congress heights', 'bellevue'],
-    '20036': ['dupont circle', 'k street'],
-    '20037': ['foggy bottom', 'west end', 'k street'],
-    '20045': ['downtown', 'federal triangle'],
-    '20059': ['howard university', 'ledroit park'],
-    '22201': ['arlington', 'courthouse', 'clarendon'],
-    '22202': ['arlington', 'crystal city', 'pentagon city'],
-    '22203': ['arlington', 'ballston'],
-    '22204': ['arlington', 'columbia pike'],
-    '22205': ['arlington', 'westover'],
-    '22206': ['arlington', 'shirlington'],
-    '22207': ['arlington', 'north arlington'],
-    '22209': ['arlington', 'rosslyn'],
-    '22301': ['alexandria', 'del ray'],
-    '22302': ['alexandria'],
-    '22303': ['alexandria', 'huntington'],
-    '22304': ['alexandria'],
-    '22305': ['alexandria', 'arlandria'],
-    '22306': ['alexandria', 'hybla valley'],
-    '22310': ['alexandria', 'kingstowne'],
-    '22314': ['old town alexandria'],
-    '22315': ['kingstowne', 'alexandria'],
-    '20190': ['reston'],
-    '20191': ['reston'],
-    '20194': ['reston'],
-    '22101': ['mclean'],
-    '22102': ['tysons', 'mclean'],
-    '22182': ['tysons', 'vienna'],
-    '20852': ['rockville', 'north bethesda'],
-    '20854': ['potomac'],
-    '20878': ['gaithersburg'],
-    '20902': ['silver spring'],
-    '20906': ['silver spring'],
-    '20910': ['silver spring'],
-    '20912': ['takoma park'],
-    '20740': ['college park'],
-    '20742': ['college park'],
-    '20783': ['hyattsville'],
-    '20784': ['hyattsville', 'riverdale'],
-    '20785': ['hyattsville', 'landover'],
-  };
+const isMobile = () => window.innerWidth <= 680;
 
-  function zipToNeighborhoods(zip) {
-    return DC_ZIPS[zip.trim()] || null;
-  }
+// ── Zip lookup ─────────────────────────────────────────
+const ZIPS = {
+  '20001':['shaw','bloomingdale','ledroit park','edgewood'],
+  '20002':['edgewood','brookland','trinidad','capitol hill'],
+  '20003':['capitol hill','navy yard','capitol riverfront'],
+  '20004':['downtown','penn quarter','chinatown'],
+  '20005':['downtown','thomas circle','logan circle'],
+  '20006':['downtown','foggy bottom','west end'],
+  '20007':['georgetown','glover park'],
+  '20008':['woodley park','cleveland park','van ness'],
+  '20009':['adams morgan','dupont circle','columbia heights','u street'],
+  '20010':['columbia heights','mount pleasant'],
+  '20011':['petworth','brightwood','fort totten'],
+  '20012':['takoma','brightwood'],
+  '20015':['chevy chase'],
+  '20016':['american university','tenleytown','friendship heights'],
+  '20017':['brookland','michigan park'],
+  '20018':['northeast','woodridge'],
+  '20019':['capitol heights','benning'],
+  '20020':['anacostia','congress heights'],
+  '20024':['southwest waterfront','wharf'],
+  '20032':['congress heights','bellevue'],
+  '20036':['dupont circle','k street'],
+  '20037':['foggy bottom','west end','k street'],
+  '20045':['downtown','federal triangle'],
+  '22201':['arlington','courthouse','clarendon'],
+  '22202':['arlington','crystal city','pentagon city'],
+  '22203':['arlington','ballston'],
+  '22204':['arlington','columbia pike'],
+  '22205':['arlington','westover'],
+  '22206':['arlington','shirlington'],
+  '22207':['arlington','north arlington'],
+  '22209':['arlington','rosslyn'],
+  '22301':['alexandria','del ray'],
+  '22302':['alexandria'],
+  '22303':['alexandria','huntington'],
+  '22304':['alexandria'],
+  '22305':['alexandria','arlandria'],
+  '22306':['alexandria','hybla valley'],
+  '22310':['alexandria','kingstowne'],
+  '22314':['old town alexandria'],
+  '22315':['kingstowne','alexandria'],
+  '20190':['reston'],'20191':['reston'],'20194':['reston'],
+  '22101':['mclean'],
+  '22102':['tysons','mclean'],
+  '22182':['tysons','vienna'],
+  '20852':['rockville','north bethesda'],
+  '20854':['potomac'],
+  '20878':['gaithersburg'],
+  '20902':['silver spring'],'20906':['silver spring'],'20910':['silver spring'],
+  '20912':['takoma park'],
+  '20740':['college park'],'20742':['college park'],
+  '20783':['hyattsville'],'20784':['hyattsville','riverdale'],'20785':['hyattsville','landover'],
+};
 
-
-
-  function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) return [];
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-    return lines.slice(1).map(line => {
-      const fields = [];
-      let cur = '', inQuote = false;
-      for (let i = 0; i < line.length; i++) {
-        if (line[i] === '"') { inQuote = !inQuote; }
-        else if (line[i] === ',' && !inQuote) { fields.push(cur.trim()); cur = ''; }
-        else { cur += line[i]; }
-      }
-      fields.push(cur.trim());
-      const obj = {};
-      headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
-      return obj;
-    }).filter(r => r.name && r.lat && r.lng).map(r => ({
-      name: r.name, neighborhood: r.neighborhood || '',
-      lat: parseFloat(r.lat), lng: parseFloat(r.lng),
-      hours: r.hours || '', games: r.games || '',
-      team: r.team || null, note: r.note || '',
-      showAllGames: r.showAllGames ? r.showAllGames.toUpperCase() === 'TRUE' : true,
-      usaSpecial: r.usaSpecial ? r.usaSpecial.toUpperCase() === 'TRUE' : false,
-    }));
-  }
-
-  function markerColor(v) {
-    if (v.team) return '#185FA5';
-    if (v.showAllGames) return '#1D9E75';
-    return '#BA7517';
-  }
-
-  function filtered() {
-    let base = venues;
-    if (activeFilter === 'usa') base = base.filter(v => v.usaSpecial);
-    if (countryFilter) base = base.filter(v => v.team && v.team === countryFilter);
-    if (dateFilter) {
-      const dayMatches = allMatches.filter(m => m.date === dateFilter);
-      const teams = dayMatches.flatMap(m => [m.home, m.away]).map(t => t.toLowerCase());
-      if (teams.length > 0) {
-        base = base.filter(v =>
-          v.showAllGames ||
-          (v.team && teams.some(t => v.team.toLowerCase().includes(t)))
-        );
-      }
+// ── CSV parser ─────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).map(line => {
+    const fields = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') inQ = !inQ;
+      else if (line[i] === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
+      else cur += line[i];
     }
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase().trim();
-      const isZip = /^\d{5}$/.test(q);
-      if (isZip) {
-        const hoods = zipToNeighborhoods(q);
-        if (hoods) {
-          base = base.filter(v => hoods.some(h => v.neighborhood.toLowerCase().includes(h)));
-        } else {
-          base = [];
-        }
-      } else {
-        base = base.filter(v =>
-          v.name.toLowerCase().includes(q) ||
-          v.neighborhood.toLowerCase().includes(q) ||
-          (v.team && v.team.toLowerCase().includes(q)) ||
-          (v.note && v.note.toLowerCase().includes(q)) ||
-          (v.games && v.games.toLowerCase().includes(q))
-        );
-      }
-    }
-    return base;
-  }
-
-  function makeMarkerEl(color, idx, mapType) {
-    const el = document.createElement('div');
-    el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.15s;`;
-    el.addEventListener('mouseenter', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; });
-    el.addEventListener('mouseleave', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; });
-    el.addEventListener('click', () => mapType === 'mobile' ? showDetail(idx) : selectVenueDesktop(idx));
-    return el;
-  }
-
-  function renderMarkers() {
-    desktopMarkers.forEach(m => m.remove()); desktopMarkers = [];
-    mobileMarkers.forEach(m => m.remove()); mobileMarkers = [];
-    filtered().forEach(venue => {
-      const idx = venues.indexOf(venue);
-      const color = markerColor(venue);
-      if (desktopMap) {
-        const m = new maplibregl.Marker({ element: makeMarkerEl(color, idx, 'desktop') }).setLngLat([venue.lng, venue.lat]).addTo(desktopMap);
-        desktopMarkers.push(m);
-      }
-      if (mobileMap) {
-        const m = new maplibregl.Marker({ element: makeMarkerEl(color, idx, 'mobile') }).setLngLat([venue.lng, venue.lat]).addTo(mobileMap);
-        mobileMarkers.push(m);
-      }
-    });
-  }
-
-  function renderLists() {
-    const f = filtered();
-    const countText = `${f.length} venue${f.length !== 1 ? 's' : ''}`;
-    document.getElementById('venue-count').textContent = countText;
-    document.getElementById('mobile-count').textContent = countText;
-
-    const desktopList = document.getElementById('venue-list');
-    desktopList.innerHTML = '<div id="error-msg"></div>';
-    const mobileList = document.getElementById('mobile-venue-list');
-    mobileList.innerHTML = '';
-
-    if (f.length === 0) {
-      const icon = searchQuery.length > 0 ? '🔍' : '📍';
-      const title = searchQuery.length > 0 ? 'No venues found' : 'No venues here';
-      const sub = searchQuery.length > 0
-        ? 'No results for "' + searchQuery + '" — try a different search or filter'
-        : 'Try a different filter';
-      const emptyHtml = '<div class="empty-state"><div class="empty-state-icon">' + icon + '</div><div class="empty-state-title">' + title + '</div><div class="empty-state-sub">' + sub + '</div></div>';
-      desktopList.innerHTML += emptyHtml;
-      mobileList.innerHTML = emptyHtml;
-      return;
-    }
-
-    f.forEach(venue => {
-      const idx = venues.indexOf(venue);
-      const teamTag = venue.team ? `<span class="tag tag-team">${venue.team}</span>` : `<span class="tag tag-all">All teams</span>`;
-      const inner = `<div class="vc-name">${venue.name}</div><div class="vc-hood">${venue.neighborhood}</div><div class="vc-tags">${teamTag}<span class="tag tag-hours">${venue.hours}</span></div>`;
-
-      [desktopList, mobileList].forEach((list, li) => {
-        const card = document.createElement('div');
-        card.className = 'venue-card' + (selectedIdx === idx ? ' selected' : '');
-        card.dataset.idx = idx;
-        card.innerHTML = inner;
-        card.addEventListener('click', () => {
-          if (li === 1 || isMobile()) {
-            mobileMap && mobileMap.flyTo({ center: [venue.lng, venue.lat], zoom: 14, duration: 600 });
-            showDetail(idx);
-          } else {
-            selectVenueDesktop(idx);
-          }
-        });
-        list.appendChild(card);
-      });
-    });
-  }
-
-  function selectVenueDesktop(idx) {
-    selectedIdx = idx;
-    const v = venues[idx];
-    document.querySelectorAll('.venue-card').forEach(c => c.classList.toggle('selected', parseInt(c.dataset.idx) === idx));
-    desktopMarkers.forEach((m, i) => {
-      const el = m.getElement();
-      const isSelected = venues.indexOf(filtered()[i]) === idx;
-      el.style.transform = isSelected ? 'scale(1.5)' : 'scale(1)';
-      el.style.zIndex = isSelected ? '10' : '1';
-    });
-    desktopMap && desktopMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 600 });
-    document.getElementById('popup-name').textContent = v.name;
-    document.getElementById('popup-hood').textContent = v.neighborhood;
-    const teamHtml = v.team ? `<span class="popup-team-badge">${v.team}</span>` : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
-    const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
-    document.getElementById('popup-body').innerHTML = `
-      <div class="popup-row"><span class="popup-label">Hours</span><span class="popup-val">${v.hours}</span></div>
-      <div class="popup-row"><span class="popup-label">Games</span><span class="popup-val">${v.games}</span></div>
-      <div class="popup-row"><span class="popup-label">Team</span><span class="popup-val">${teamHtml}</span></div>
-      <div class="popup-divider"></div>
-      <div class="popup-note">${v.note}</div>
-      <a href="${mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:12px;color:var(--green);text-decoration:none;font-weight:500;">Open in Google Maps →</a>`;
-    document.getElementById('popup').classList.add('visible');
-    const card = document.querySelector(`#venue-list .venue-card[data-idx="${idx}"]`);
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function showDetail(idx) {
-    selectedIdx = idx;
-    const v = venues[idx];
-    document.getElementById('detail-name').textContent = v.name;
-    document.getElementById('detail-hood').textContent = v.neighborhood;
-    const teamHtml = v.team ? `<span class="popup-team-badge">${v.team}</span>` : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
-    const mapsUrlM = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
-    document.getElementById('detail-body').innerHTML = `
-      <div class="detail-row"><span class="detail-label">Hours</span><span class="detail-val">${v.hours}</span></div>
-      <div class="detail-row"><span class="detail-label">Games</span><span class="detail-val">${v.games}</span></div>
-      <div class="detail-row"><span class="detail-label">Team</span><span class="detail-val">${teamHtml}</span></div>
-      <div class="detail-note">${v.note}</div>
-      <a href="${mapsUrlM}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:13px;color:var(--green);text-decoration:none;font-weight:500;">Open in Google Maps →</a>`;
-    document.getElementById('mobile-detail').classList.add('visible');
-  }
-
-  function hideDetail() {
-    document.getElementById('mobile-detail').classList.remove('visible');
-    selectedIdx = null;
-  }
-
-  function clearSelection() {
-    selectedIdx = null;
-    document.getElementById('popup').classList.remove('visible');
-    document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('selected'));
-    desktopMarkers.forEach(m => { m.getElement().style.transform = 'scale(1)'; m.getElement().style.zIndex = '1'; });
-  }
-
-  async function loadVenues() {
-    try {
-      const res = await fetch(SHEET_CSV_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      venues = parseCSV(await res.text());
-      if (!venues.length) throw new Error('No venues found.');
-      venuesLoaded = true;
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('loading-mobile').style.display = 'none';
-      renderMarkers();
-      renderLists();
-      loadMatches();
-    } catch (err) {
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('loading-mobile').style.display = 'none';
-      const el = document.getElementById('error-msg');
-      el.textContent = `Could not load venues: ${err.message}`;
-      el.classList.add('visible');
-    }
-  }
-
-  function handleSearch(q) {
-    searchQuery = q.trim();
-    document.getElementById('search-clear').classList.toggle('visible', q.length > 0);
-    document.getElementById('mobile-search-clear').classList.toggle('visible', q.length > 0);
-    document.getElementById('search-input').value = q;
-    document.getElementById('mobile-search-input').value = q;
-    clearSelection();
-    hideDetail();
-    renderMarkers();
-    renderLists();
-  }
-
-  document.getElementById('search-input').addEventListener('input', e => handleSearch(e.target.value));
-  document.getElementById('mobile-search-input').addEventListener('input', e => handleSearch(e.target.value));
-  document.getElementById('search-clear').addEventListener('click', () => handleSearch(''));
-  document.getElementById('mobile-search-clear').addEventListener('click', () => handleSearch(''));
-
-
-  // ── Near me ──
-  let nearMeActive = false;
-  let userLat = null, userLng = null;
-
-  function sortByDistance() {
-    if (!userLat || !userLng) return;
-    venues.sort((a, b) => {
-      const distA = Math.pow(a.lat - userLat, 2) + Math.pow(a.lng - userLng, 2);
-      const distB = Math.pow(b.lat - userLat, 2) + Math.pow(b.lng - userLng, 2);
-      return distA - distB;
-    });
-  }
-
-  function activateNearMe() {
-    if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
-    navigator.geolocation.getCurrentPosition(pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-      nearMeActive = true;
-      document.querySelectorAll('.near-me-btn').forEach(b => b.classList.add('active'));
-      sortByDistance();
-      const activeMap = isMobile() ? mobileMap : desktopMap;
-      if (activeMap) activeMap.flyTo({ center: [userLng, userLat], zoom: 12, duration: 600 });
-      renderMarkers();
-      renderLists();
-    }, () => alert('Could not get your location. Please check your browser permissions.'));
-  }
-
-  function deactivateNearMe() {
-    nearMeActive = false;
-    userLat = null; userLng = null;
-    document.querySelectorAll('.near-me-btn').forEach(b => b.classList.remove('active'));
-    renderMarkers();
-    renderLists();
-  }
-
-  document.getElementById('near-me-btn').addEventListener('click', () => nearMeActive ? deactivateNearMe() : activateNearMe());
-  document.getElementById('mobile-near-me-btn').addEventListener('click', () => nearMeActive ? deactivateNearMe() : activateNearMe());
-
-  function handleCountryChange(val) {
-    countryFilter = val;
-    document.getElementById('country-select').value = val;
-    document.getElementById('mobile-country-select').value = val;
-    document.getElementById('country-select').classList.toggle('active', val !== '');
-    document.getElementById('mobile-country-select').classList.toggle('active', val !== '');
-    clearSelection();
-    renderMarkers();
-    renderLists();
-  }
-
-  function handleDateChange(val) {
-    dateFilter = val;
-    document.getElementById('date-filter').value = val;
-    document.getElementById('mobile-date-filter').value = val;
-    document.getElementById('date-filter').classList.toggle('active', val !== '');
-    document.getElementById('mobile-date-filter').classList.toggle('active', val !== '');
-    const clearBtn = document.getElementById('date-clear');
-    if (clearBtn) clearBtn.classList.toggle('visible', val !== '');
-    if (val) updateMatchStrip(val);
-    else updateMatchStrip();
-    clearSelection();
-    renderMarkers();
-    renderLists();
-  }
-
-  document.getElementById('country-select').addEventListener('change', e => handleCountryChange(e.target.value));
-  document.getElementById('mobile-country-select').addEventListener('change', e => handleCountryChange(e.target.value));
-  document.getElementById('date-filter').addEventListener('change', e => handleDateChange(e.target.value));
-  document.getElementById('mobile-date-filter').addEventListener('change', e => handleDateChange(e.target.value));
-  const dateClearBtn = document.getElementById('date-clear');
-  if (dateClearBtn) dateClearBtn.addEventListener('click', () => handleDateChange(''));
-
-  // ── Match strip ──
-  async function loadMatches() {
-    try {
-      const res = await fetch(MATCHES_CSV_URL);
-      if (!res.ok) return;
-      const text = await res.text();
-      const lines = text.trim().split('\n');
-      if (lines.length < 2) return;
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-      allMatches = lines.slice(1).map(line => {
-        const fields = [];
-        let cur = '', inQ = false;
-        for (let i = 0; i < line.length; i++) {
-          if (line[i] === '"') { inQ = !inQ; }
-          else if (line[i] === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
-          else { cur += line[i]; }
-        }
-        fields.push(cur.trim());
-        const obj = {};
-        headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
-        return obj;
-      }).filter(m => m.date && m.home && m.away);
-
-      populateDateFilter();
-      updateMatchStrip();
-    } catch(e) {}
-  }
-
-  function populateDateFilter() {
-    const dates = [...new Set(allMatches.map(m => m.date))].sort();
-    ['date-filter', 'mobile-date-filter'].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      if (dates.length) { el.min = dates[0]; el.max = dates[dates.length - 1]; }
-    });
-  }
-
-  function updateMatchStrip(forDate) {
-    const strip = document.getElementById('match-strip');
-    const items = document.getElementById('match-strip-items');
-    const label = strip.querySelector('.match-today-label');
-    const today = new Date().toISOString().split('T')[0];
-    const targetDate = forDate || today;
-    const dayMatches = allMatches.filter(m => m.date === targetDate);
-
-    if (dayMatches.length === 0 && !forDate) {
-      const next = allMatches.find(m => m.date > today);
-      if (next) {
-        label.textContent = 'Next match';
-        items.innerHTML = '<div class="match-no-games">No games today — next: ' + next.home + ' vs ' + next.away + ' on ' + new Date(next.date + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'}) + '</div>';
-        strip.classList.remove('hidden');
-        adjustLayoutForStrip();
-      }
-      return;
-    }
-
-    if (dayMatches.length === 0) {
-      label.textContent = forDate ? new Date(forDate + 'T12:00:00').toLocaleDateString('en-US', {month:'short', day:'numeric'}) : 'Today';
-      items.innerHTML = '<div class="match-no-games">No matches scheduled for this date</div>';
-      strip.classList.remove('hidden');
-      adjustLayoutForStrip();
-      return;
-    }
-
-    label.textContent = forDate && forDate !== today
-      ? new Date(forDate + 'T12:00:00').toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'})
-      : 'Today';
-
-    items.innerHTML = dayMatches.map(m =>
-      '<div class="match-item">' +
-        '<div class="match-teams">' + m.home + '<span>vs</span>' + m.away + '</div>' +
-        (m.time ? '<div class="match-time">' + m.time + '</div>' : '') +
-        (m.channel ? '<div class="match-channel">' + m.channel + '</div>' : '') +
-      '</div>'
-    ).join('');
-    strip.classList.remove('hidden');
-    adjustLayoutForStrip();
-  }
-
-  function adjustLayoutForStrip() {
-    const stripH = document.getElementById('match-strip').offsetHeight;
-    document.querySelector('.layout').style.top = stripH + 'px';
-  }
-
-  const mapStyle = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-  const mapCenter = [-77.04, 38.905];
-
-  desktopMap = new maplibregl.Map({ container: 'map', style: mapStyle, center: mapCenter, zoom: 11.5 });
-  desktopMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  desktopMap.touchZoomRotate.disableRotation();
-  desktopMap.on('load', () => { if (!venuesLoaded) loadVenues(); });
-
-  mobileMap = new maplibregl.Map({ container: 'map-mobile', style: mapStyle, center: [-77.06, 38.91], zoom: 10 });
-  mobileMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  mobileMap.touchZoomRotate.disableRotation();
-  mobileMap.on('load', () => { if (!venuesLoaded) loadVenues(); });
-
-  document.getElementById('popup-close').addEventListener('click', clearSelection);
-  document.getElementById('detail-close').addEventListener('click', hideDetail);
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll(`.filter-btn[data-filter="${btn.dataset.filter}"]`).forEach(b => b.classList.add('active'));
-      document.querySelectorAll(`.filter-btn:not([data-filter="${btn.dataset.filter}"])`).forEach(b => b.classList.remove('active'));
-      activeFilter = btn.dataset.filter;
-      clearSelection();
-      hideDetail();
-      renderMarkers();
-      renderLists();
-    });
+    fields.push(cur.trim());
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
+    return obj;
   });
-</script>
-</body>
-</html>    }
+}
 
-    /* ── Sidebar ── */
-    #sidebar {
-      width: 320px; min-width: 320px;
-      background: var(--bg);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column;
-      overflow: hidden; z-index: 100;
+// ── Filter logic ───────────────────────────────────────
+function filtered() {
+  let base = venues;
+  if (activeFilter === 'usa') base = base.filter(v => v.usaSpecial);
+  if (countryFilter) base = base.filter(v => v.team === countryFilter);
+  if (dateFilter) {
+    const dayTeams = allMatches.filter(m => m.date === dateFilter)
+      .flatMap(m => [m.home, m.away]).map(t => t.toLowerCase());
+    if (dayTeams.length) {
+      base = base.filter(v =>
+        v.showAllGames || (v.team && dayTeams.some(t => v.team.toLowerCase().includes(t)))
+      );
     }
-
-    .sidebar-top { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sidebar-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
-
-    /* Match strip */
-    #match-strip { background: #1a1a18; color: #fff; padding: 0; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.08); width: 100%; }
-    #match-strip.hidden { display: none; }
-    .match-strip-inner { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; gap: 0; }
-    .match-strip-inner::-webkit-scrollbar { display: none; }
-    .match-today-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #1D9E75; padding: 10px 14px; display: flex; align-items: center; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
-    .match-item { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-right: 1px solid rgba(255,255,255,0.08); white-space: nowrap; flex-shrink: 0; }
-    .match-teams { font-size: 13px; font-weight: 600; color: #fff; }
-    .match-teams span { color: rgba(255,255,255,0.4); font-weight: 400; margin: 0 4px; }
-    .match-time { font-size: 11px; color: rgba(255,255,255,0.55); }
-    .match-channel { font-size: 10px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); padding: 2px 6px; border-radius: 4px; }
-    .match-no-games { font-size: 12px; color: rgba(255,255,255,0.4); padding: 10px 16px; font-style: italic; }
-    /* Near me button */
-    .near-me-btn { display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.15s; font-family: inherit; -webkit-tap-highlight-color: transparent; white-space: nowrap; }
-    .near-me-btn:hover { border-color: var(--green); color: var(--green); }
-    .near-me-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
-    .search-wrap { position: relative; margin-bottom: 8px; }
-    .search-input { width: 100%; padding: 7px 32px 7px 10px; font-size: 13px; font-family: inherit; border: 1px solid var(--border); border-radius: 20px; background: var(--bg-secondary); color: var(--text); outline: none; transition: border-color 0.15s; }
-    .search-input:focus { border-color: var(--green); background: var(--bg); }
-    .search-input::placeholder { color: var(--text-muted); }
-    .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 16px; line-height: 1; display: none; font-family: inherit; padding: 0; }
-    .search-clear.visible { display: block; }
-    .empty-state { padding: 32px 16px; text-align: center; color: var(--text-muted); }
-    .empty-state-icon { font-size: 28px; margin-bottom: 10px; }
-    .empty-state-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-    .empty-state-sub { font-size: 12px; line-height: 1.5; }
-
-    .filter-btn { font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.15s; font-family: inherit; -webkit-tap-highlight-color: transparent; }
-    .filter-btn:hover { border-color: var(--green); color: var(--green); }
-    .filter-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
-
-    .legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
-    .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); flex-shrink: 0; }
-
-    #venue-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-
-    .venue-card { padding: 12px 14px; cursor: pointer; border-left: 3px solid transparent; border-bottom: 1px solid var(--border); transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
-    .venue-card:last-child { border-bottom: none; }
-    .venue-card:hover { background: var(--bg-secondary); }
-    .venue-card.selected { border-left-color: var(--green); background: var(--green-light); }
-    .vc-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-    .vc-hood { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-    .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-    .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
-    .tag-team  { background: var(--blue-light); color: var(--blue); }
-    .tag-all   { background: var(--green-light); color: var(--green-dark); }
-    .tag-hours { background: var(--gray-light); color: var(--gray); }
-
-    /* ── Map ── */
-    #map-container { flex: 1; position: relative; }
-    #map { width: 100%; height: 100%; }
-    .maplibregl-ctrl-attrib { font-size: 10px !important; }
-
-    /* ── Loading ── */
-    #loading { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg); z-index: 500; gap: 12px; }
-    #loading.hidden { display: none; }
-    .spinner { width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--green); animation: spin 0.7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 13px; color: var(--text-muted); }
-
-    #error-msg { display: none; padding: 16px; margin: 12px; border-radius: var(--radius-sm); background: #FCEBEB; color: #A32D2D; font-size: 13px; line-height: 1.5; }
-    #error-msg.visible { display: block; }
-
-    /* ── Desktop popup ── */
-    #popup { position: absolute; bottom: 20px; left: 20px; width: 290px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: none; z-index: 150; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
-    #popup.visible { display: block; }
-    .popup-close { position: absolute; top: 10px; right: 10px; background: var(--bg-secondary); border: none; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-family: inherit; transition: background 0.15s; }
-    .popup-close:hover { background: var(--border); }
-    .popup-name { font-size: 15px; font-weight: 700; padding-right: 30px; margin-bottom: 2px; }
-    .popup-hood { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-    .popup-row { display: flex; gap: 8px; margin-bottom: 7px; font-size: 13px; align-items: flex-start; }
-    .popup-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); min-width: 50px; padding-top: 1px; }
-    .popup-val { color: var(--text); line-height: 1.4; }
-    .popup-team-badge { display: inline-block; background: var(--blue-light); color: var(--blue); font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
-    .popup-divider { height: 1px; background: var(--border); margin: 8px 0; }
-    .popup-note { font-size: 12px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 8px 10px; border-radius: var(--radius-sm); }
-
-    /* ── Mobile layout ── */
-    #mobile-layout { display: none; flex-direction: column; min-height: 100vh; }
-
-    #mobile-map { width: 100%; height: 60vw; min-height: 260px; max-height: 380px; position: relative; }
-    #mobile-map #map-mobile { width: 100%; height: 100%; }
-
-    #mobile-list-section { background: var(--bg); border-top: 1px solid var(--border); }
-
-    .mobile-list-header { padding: 12px 16px 8px; border-bottom: 1px solid var(--border); }
-    .mobile-count { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
-    .mobile-filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-    .mobile-filter-row::-webkit-scrollbar { display: none; }
-    .mobile-filter-row .filter-btn { flex-shrink: 0; }
-
-    #mobile-venue-list { padding: 0; }
-
-    /* Mobile venue detail card */
-    #mobile-detail { display: none; position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg); border-radius: 16px 16px 0 0; border-top: 1px solid var(--border); z-index: 400; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); padding-bottom: env(safe-area-inset-bottom); }
-    #mobile-detail.visible { transform: translateY(0); }
-    .detail-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 16px 10px; border-bottom: 1px solid var(--border); }
-    .detail-name { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
-    .detail-hood { font-size: 13px; color: var(--text-muted); }
-    .detail-close { background: var(--bg-secondary); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 18px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; font-family: inherit; flex-shrink: 0; margin-left: 10px; }
-    .detail-body { padding: 14px 16px 20px; }
-    .detail-row { display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start; }
-    .detail-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); min-width: 52px; padding-top: 2px; }
-    .detail-val { font-size: 14px; color: var(--text); line-height: 1.4; }
-    .detail-note { font-size: 13px; color: var(--text-muted); line-height: 1.5; background: var(--bg-secondary); padding: 10px 12px; border-radius: var(--radius-sm); margin-top: 4px; }
-
-    /* ── Responsive switch ── */
-    @media (max-width: 680px) {
-      .layout { display: none; }
-      #mobile-layout { display: flex; }
-      #mobile-detail { display: block; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- Desktop -->
-<div id="match-strip" class="hidden"><div class="match-strip-inner"><div class="match-today-label">Today</div><div id="match-strip-items"></div></div></div>
-<div class="layout">
-  <div id="sidebar">
-    <div class="sidebar-top">
-      <div class="search-wrap">
-        <input class="search-input" id="search-input" type="text" placeholder="Search venues, neighborhoods, teams…" />
-        <button class="search-clear" id="search-clear">×</button>
-      </div>
-      <div class="sidebar-count" id="venue-count">Loading...</div>
-      <div class="filter-row">
-        <button class="filter-btn active" data-filter="all">All venues</button>
-        <button class="filter-btn" data-filter="team">Team-specific</button>
-        <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
-        <button class="near-me-btn" id="near-me-btn">📍 Near me</button>
-      </div>
-    </div>
-    <div class="legend">
-      <div class="legend-item"><div class="dot" style="background:#1D9E75"></div> Shows all games</div>
-      <div class="legend-item"><div class="dot" style="background:#185FA5"></div> One country only</div>
-      <div class="legend-item"><div class="dot" style="background:#BA7517"></div> Select matches</div>
-    </div>
-    <div id="venue-list"><div id="error-msg"></div></div>
-  </div>
-  <div id="map-container">
-    <div id="map"></div>
-    <div id="loading"><div class="spinner"></div><div class="loading-text">Loading venues...</div></div>
-    <div id="popup">
-      <button class="popup-close" id="popup-close">×</button>
-      <div class="popup-name" id="popup-name"></div>
-      <div class="popup-hood" id="popup-hood"></div>
-      <div id="popup-body"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Mobile -->
-<div id="mobile-layout">
-  <div id="mobile-map">
-    <div id="map-mobile"></div>
-    <div id="loading-mobile" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;gap:10px;">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading venues...</div>
-    </div>
-  </div>
-  <div id="mobile-list-section">
-    <div class="mobile-list-header">
-      <div class="search-wrap">
-        <input class="search-input" id="mobile-search-input" type="text" placeholder="Search venues, neighborhoods, teams…" />
-        <button class="search-clear" id="mobile-search-clear">×</button>
-      </div>
-      <div class="mobile-count" id="mobile-count">Loading...</div>
-      <div class="mobile-filter-row">
-        <button class="filter-btn active" data-filter="all">All venues</button>
-        <button class="filter-btn" data-filter="team">Team-specific</button>
-        <button class="filter-btn" data-filter="usa">🇺🇸 USA bars</button>
-        <button class="near-me-btn" id="mobile-near-me-btn">📍 Near me</button>
-      </div>
-    </div>
-    <div id="mobile-venue-list"></div>
-  </div>
-</div>
-
-<!-- Mobile detail sheet -->
-<div id="mobile-detail">
-  <div class="detail-header">
-    <div>
-      <div class="detail-name" id="detail-name"></div>
-      <div class="detail-hood" id="detail-hood"></div>
-    </div>
-    <button class="detail-close" id="detail-close">×</button>
-  </div>
-  <div class="detail-body" id="detail-body"></div>
-</div>
-
-<script src="https://unpkg.com/maplibre-gl@4.7.0/dist/maplibre-gl.js"></script>
-<script>
-  const MATCHES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=903992166&single=true&output=csv";
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv";
-
-  let venues = [], desktopMap, mobileMap, desktopMarkers = [], mobileMarkers = [];
-  let activeFilter = 'all', selectedIdx = null, searchQuery = '', venuesLoaded = false;
-  const isMobile = () => window.innerWidth <= 680;
-
-  function parseCSV(text) {
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) return [];
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-    return lines.slice(1).map(line => {
-      const fields = [];
-      let cur = '', inQuote = false;
-      for (let i = 0; i < line.length; i++) {
-        if (line[i] === '"') { inQuote = !inQuote; }
-        else if (line[i] === ',' && !inQuote) { fields.push(cur.trim()); cur = ''; }
-        else { cur += line[i]; }
-      }
-      fields.push(cur.trim());
-      const obj = {};
-      headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
-      return obj;
-    }).filter(r => r.name && r.lat && r.lng).map(r => ({
-      name: r.name, neighborhood: r.neighborhood || '',
-      lat: parseFloat(r.lat), lng: parseFloat(r.lng),
-      hours: r.hours || '', games: r.games || '',
-      team: r.team || null, note: r.note || '',
-      showAllGames: r.showAllGames ? r.showAllGames.toUpperCase() === 'TRUE' : true,
-      usaSpecial: r.usaSpecial ? r.usaSpecial.toUpperCase() === 'TRUE' : false,
-    }));
   }
-
-  function markerColor(v) {
-    if (v.team) return '#185FA5';
-    if (v.showAllGames) return '#1D9E75';
-    return '#BA7517';
-  }
-
-  function filtered() {
-    let base = venues;
-    if (activeFilter === 'team') base = base.filter(v => v.team);
-    else if (activeFilter === 'usa') base = base.filter(v => v.usaSpecial);
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    if (/^\d{5}$/.test(q)) {
+      const hoods = ZIPS[q];
+      base = hoods ? base.filter(v => hoods.some(h => v.neighborhood.toLowerCase().includes(h))) : [];
+    } else {
       base = base.filter(v =>
         v.name.toLowerCase().includes(q) ||
         v.neighborhood.toLowerCase().includes(q) ||
@@ -1058,297 +677,320 @@
         (v.games && v.games.toLowerCase().includes(q))
       );
     }
-    return base;
+  }
+  return base;
+}
+
+// ── Marker color ───────────────────────────────────────
+function pinColor(v) {
+  if (v.team) return '#185FA5';
+  if (v.showAllGames) return '#1D9E75';
+  return '#BA7517';
+}
+
+function mkPin(color, idx, mapType) {
+  const el = document.createElement('div');
+  el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.28);cursor:pointer;transition:transform 0.15s;`;
+  el.onmouseenter = () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; };
+  el.onmouseleave = () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; };
+  el.onclick = () => mapType === 'mobile' ? openSheet(idx) : openPopup(idx);
+  return el;
+}
+
+// ── Render markers ─────────────────────────────────────
+function renderMarkers() {
+  dMarkers.forEach(m => m.remove()); dMarkers = [];
+  mMarkers.forEach(m => m.remove()); mMarkers = [];
+  filtered().forEach(v => {
+    const idx = venues.indexOf(v);
+    const c = pinColor(v);
+    if (desktopMap) dMarkers.push(new maplibregl.Marker({ element: mkPin(c, idx, 'desktop') }).setLngLat([v.lng, v.lat]).addTo(desktopMap));
+    if (mobileMap)  mMarkers.push(new maplibregl.Marker({ element: mkPin(c, idx, 'mobile')  }).setLngLat([v.lng, v.lat]).addTo(mobileMap));
+  });
+}
+
+// ── Render lists ───────────────────────────────────────
+function renderLists() {
+  const f = filtered();
+  const ct = f.length + ' venue' + (f.length !== 1 ? 's' : '');
+  document.getElementById('venue-count').textContent = ct;
+  document.getElementById('mobile-count').textContent = ct;
+
+  const dl = document.getElementById('venue-list');
+  const ml = document.getElementById('mobile-venue-list');
+  dl.innerHTML = '<div class="error-msg" id="error-msg"></div>';
+  ml.innerHTML = '';
+
+  if (!f.length) {
+    const isSearch = searchQuery.length > 0;
+    const html = '<div class="empty"><div class="empty-icon">' + (isSearch ? '🔍' : '📍') + '</div>'
+      + '<div class="empty-title">' + (isSearch ? 'No venues found' : 'No venues here') + '</div>'
+      + '<div class="empty-sub">' + (isSearch ? 'No results for "' + searchQuery + '" — try a different search' : 'Try a different filter') + '</div></div>';
+    dl.innerHTML += html;
+    ml.innerHTML = html;
+    return;
   }
 
-  function makeMarkerEl(color, idx, mapType) {
-    const el = document.createElement('div');
-    el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${color};border:2.5px solid white;box-shadow:0 1px 6px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.15s;`;
-    el.addEventListener('mouseenter', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; });
-    el.addEventListener('mouseleave', () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; });
-    el.addEventListener('click', () => mapType === 'mobile' ? showDetail(idx) : selectVenueDesktop(idx));
-    return el;
-  }
+  f.forEach(v => {
+    const idx = venues.indexOf(v);
+    const teamTag = v.team ? '<span class="tag tag-team">' + v.team + '</span>' : '<span class="tag tag-all">All teams</span>';
+    const inner = '<div class="vc-name">' + v.name + '</div>'
+      + '<div class="vc-hood">' + v.neighborhood + '</div>'
+      + '<div class="vc-tags">' + teamTag + '<span class="tag tag-hours">' + v.hours + '</span></div>';
 
-  function renderMarkers() {
-    desktopMarkers.forEach(m => m.remove()); desktopMarkers = [];
-    mobileMarkers.forEach(m => m.remove()); mobileMarkers = [];
-    filtered().forEach(venue => {
-      const idx = venues.indexOf(venue);
-      const color = markerColor(venue);
-      if (desktopMap) {
-        const m = new maplibregl.Marker({ element: makeMarkerEl(color, idx, 'desktop') }).setLngLat([venue.lng, venue.lat]).addTo(desktopMap);
-        desktopMarkers.push(m);
-      }
-      if (mobileMap) {
-        const m = new maplibregl.Marker({ element: makeMarkerEl(color, idx, 'mobile') }).setLngLat([venue.lng, venue.lat]).addTo(mobileMap);
-        mobileMarkers.push(m);
-      }
-    });
-  }
-
-  function renderLists() {
-    const f = filtered();
-    const countText = `${f.length} venue${f.length !== 1 ? 's' : ''}`;
-    document.getElementById('venue-count').textContent = countText;
-    document.getElementById('mobile-count').textContent = countText;
-
-    const desktopList = document.getElementById('venue-list');
-    desktopList.innerHTML = '<div id="error-msg"></div>';
-    const mobileList = document.getElementById('mobile-venue-list');
-    mobileList.innerHTML = '';
-
-    if (f.length === 0) {
-      const icon = searchQuery.length > 0 ? '🔍' : '📍';
-      const title = searchQuery.length > 0 ? 'No venues found' : 'No venues here';
-      const sub = searchQuery.length > 0
-        ? 'No results for "' + searchQuery + '" — try a different search or filter'
-        : 'Try a different filter';
-      const emptyHtml = '<div class="empty-state"><div class="empty-state-icon">' + icon + '</div><div class="empty-state-title">' + title + '</div><div class="empty-state-sub">' + sub + '</div></div>';
-      desktopList.innerHTML += emptyHtml;
-      mobileList.innerHTML = emptyHtml;
-      return;
-    }
-
-    f.forEach(venue => {
-      const idx = venues.indexOf(venue);
-      const teamTag = venue.team ? `<span class="tag tag-team">${venue.team}</span>` : `<span class="tag tag-all">All teams</span>`;
-      const inner = `<div class="vc-name">${venue.name}</div><div class="vc-hood">${venue.neighborhood}</div><div class="vc-tags">${teamTag}<span class="tag tag-hours">${venue.hours}</span></div>`;
-
-      [desktopList, mobileList].forEach((list, li) => {
-        const card = document.createElement('div');
-        card.className = 'venue-card' + (selectedIdx === idx ? ' selected' : '');
-        card.dataset.idx = idx;
-        card.innerHTML = inner;
-        card.addEventListener('click', () => {
-          if (li === 1 || isMobile()) {
-            mobileMap && mobileMap.flyTo({ center: [venue.lng, venue.lat], zoom: 14, duration: 600 });
-            showDetail(idx);
-          } else {
-            selectVenueDesktop(idx);
-          }
-        });
-        list.appendChild(card);
-      });
-    });
-  }
-
-  function selectVenueDesktop(idx) {
-    selectedIdx = idx;
-    const v = venues[idx];
-    document.querySelectorAll('.venue-card').forEach(c => c.classList.toggle('selected', parseInt(c.dataset.idx) === idx));
-    desktopMarkers.forEach((m, i) => {
-      const el = m.getElement();
-      const isSelected = venues.indexOf(filtered()[i]) === idx;
-      el.style.transform = isSelected ? 'scale(1.5)' : 'scale(1)';
-      el.style.zIndex = isSelected ? '10' : '1';
-    });
-    desktopMap && desktopMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 600 });
-    document.getElementById('popup-name').textContent = v.name;
-    document.getElementById('popup-hood').textContent = v.neighborhood;
-    const teamHtml = v.team ? `<span class="popup-team-badge">${v.team}</span>` : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
-    const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
-    document.getElementById('popup-body').innerHTML = `
-      <div class="popup-row"><span class="popup-label">Hours</span><span class="popup-val">${v.hours}</span></div>
-      <div class="popup-row"><span class="popup-label">Games</span><span class="popup-val">${v.games}</span></div>
-      <div class="popup-row"><span class="popup-label">Team</span><span class="popup-val">${teamHtml}</span></div>
-      <div class="popup-divider"></div>
-      <div class="popup-note">${v.note}</div>
-      <a href="${mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:12px;color:var(--green);text-decoration:none;font-weight:500;">Open in Google Maps →</a>`;
-    document.getElementById('popup').classList.add('visible');
-    const card = document.querySelector(`#venue-list .venue-card[data-idx="${idx}"]`);
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function showDetail(idx) {
-    selectedIdx = idx;
-    const v = venues[idx];
-    document.getElementById('detail-name').textContent = v.name;
-    document.getElementById('detail-hood').textContent = v.neighborhood;
-    const teamHtml = v.team ? `<span class="popup-team-badge">${v.team}</span>` : `<span style="color:var(--text-muted);font-size:13px;">No specific affiliation</span>`;
-    const mapsUrlM = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
-    document.getElementById('detail-body').innerHTML = `
-      <div class="detail-row"><span class="detail-label">Hours</span><span class="detail-val">${v.hours}</span></div>
-      <div class="detail-row"><span class="detail-label">Games</span><span class="detail-val">${v.games}</span></div>
-      <div class="detail-row"><span class="detail-label">Team</span><span class="detail-val">${teamHtml}</span></div>
-      <div class="detail-note">${v.note}</div>
-      <a href="${mapsUrlM}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;margin-top:12px;font-size:13px;color:var(--green);text-decoration:none;font-weight:500;">Open in Google Maps →</a>`;
-    document.getElementById('mobile-detail').classList.add('visible');
-  }
-
-  function hideDetail() {
-    document.getElementById('mobile-detail').classList.remove('visible');
-    selectedIdx = null;
-  }
-
-  function clearSelection() {
-    selectedIdx = null;
-    document.getElementById('popup').classList.remove('visible');
-    document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('selected'));
-    desktopMarkers.forEach(m => { m.getElement().style.transform = 'scale(1)'; m.getElement().style.zIndex = '1'; });
-  }
-
-  async function loadVenues() {
-    try {
-      const res = await fetch(SHEET_CSV_URL);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      venues = parseCSV(await res.text());
-      if (!venues.length) throw new Error('No venues found.');
-      venuesLoaded = true;
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('loading-mobile').style.display = 'none';
-      renderMarkers();
-      renderLists();
-      loadMatches();
-    } catch (err) {
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('loading-mobile').style.display = 'none';
-      const el = document.getElementById('error-msg');
-      el.textContent = `Could not load venues: ${err.message}`;
-      el.classList.add('visible');
-    }
-  }
-
-  function handleSearch(q) {
-    searchQuery = q.trim();
-    document.getElementById('search-clear').classList.toggle('visible', q.length > 0);
-    document.getElementById('mobile-search-clear').classList.toggle('visible', q.length > 0);
-    document.getElementById('search-input').value = q;
-    document.getElementById('mobile-search-input').value = q;
-    clearSelection();
-    hideDetail();
-    renderMarkers();
-    renderLists();
-  }
-
-  document.getElementById('search-input').addEventListener('input', e => handleSearch(e.target.value));
-  document.getElementById('mobile-search-input').addEventListener('input', e => handleSearch(e.target.value));
-  document.getElementById('search-clear').addEventListener('click', () => handleSearch(''));
-  document.getElementById('mobile-search-clear').addEventListener('click', () => handleSearch(''));
-
-
-  // ── Near me ──
-  let nearMeActive = false;
-  let userLat = null, userLng = null;
-
-  function sortByDistance() {
-    if (!userLat || !userLng) return;
-    venues.sort((a, b) => {
-      const distA = Math.pow(a.lat - userLat, 2) + Math.pow(a.lng - userLng, 2);
-      const distB = Math.pow(b.lat - userLat, 2) + Math.pow(b.lng - userLng, 2);
-      return distA - distB;
-    });
-  }
-
-  function activateNearMe() {
-    if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
-    navigator.geolocation.getCurrentPosition(pos => {
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
-      nearMeActive = true;
-      document.querySelectorAll('.near-me-btn').forEach(b => b.classList.add('active'));
-      sortByDistance();
-      const activeMap = isMobile() ? mobileMap : desktopMap;
-      if (activeMap) activeMap.flyTo({ center: [userLng, userLat], zoom: 12, duration: 600 });
-      renderMarkers();
-      renderLists();
-    }, () => alert('Could not get your location. Please check your browser permissions.'));
-  }
-
-  function deactivateNearMe() {
-    nearMeActive = false;
-    userLat = null; userLng = null;
-    document.querySelectorAll('.near-me-btn').forEach(b => b.classList.remove('active'));
-    renderMarkers();
-    renderLists();
-  }
-
-  document.getElementById('near-me-btn').addEventListener('click', () => nearMeActive ? deactivateNearMe() : activateNearMe());
-  document.getElementById('mobile-near-me-btn').addEventListener('click', () => nearMeActive ? deactivateNearMe() : activateNearMe());
-
-  // ── Match strip ──
-  async function loadMatches() {
-    try {
-      const res = await fetch(MATCHES_CSV_URL);
-      if (!res.ok) return;
-      const text = await res.text();
-      const lines = text.trim().split('\n');
-      if (lines.length < 2) return;
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-      const matches = lines.slice(1).map(line => {
-        const fields = [];
-        let cur = '', inQ = false;
-        for (let i = 0; i < line.length; i++) {
-          if (line[i] === '"') { inQ = !inQ; }
-          else if (line[i] === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
-          else { cur += line[i]; }
+    [dl, ml].forEach((list, li) => {
+      const card = document.createElement('div');
+      card.className = 'venue-card' + (selectedIdx === idx ? ' on' : '');
+      card.dataset.idx = idx;
+      card.innerHTML = inner;
+      card.onclick = () => {
+        if (li === 1 || isMobile()) {
+          mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
+          openSheet(idx);
+        } else {
+          openPopup(idx);
         }
-        fields.push(cur.trim());
-        const obj = {};
-        headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
-        return obj;
-      }).filter(m => m.date && m.home && m.away);
-
-      const today = new Date().toISOString().split('T')[0];
-      const todayMatches = matches.filter(m => m.date === today);
-
-      const strip = document.getElementById('match-strip');
-      const items = document.getElementById('match-strip-items');
-
-      if (todayMatches.length === 0) {
-        const next = matches.find(m => m.date > today);
-        if (next) {
-          items.innerHTML = '<div class="match-no-games">No games today — next match: ' + next.home + ' vs ' + next.away + ' on ' + next.date + '</div>';
-          strip.classList.remove('hidden');
-          adjustLayoutForStrip();
-        }
-        return;
-      }
-
-      items.innerHTML = todayMatches.map(m =>
-        '<div class="match-item">' +
-          '<div class="match-teams">' + m.home + '<span>vs</span>' + m.away + '</div>' +
-          (m.time ? '<div class="match-time">' + m.time + '</div>' : '') +
-          (m.channel ? '<div class="match-channel">' + m.channel + '</div>' : '') +
-        '</div>'
-      ).join('');
-      strip.classList.remove('hidden');
-      adjustLayoutForStrip();
-    } catch(e) {}
-  }
-
-  function adjustLayoutForStrip() {
-    const stripH = document.getElementById('match-strip').offsetHeight;
-    document.querySelector('.layout').style.top = stripH + 'px';
-  }
-
-  const mapStyle = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-  const mapCenter = [-77.04, 38.905];
-
-  desktopMap = new maplibregl.Map({ container: 'map', style: mapStyle, center: mapCenter, zoom: 11.5 });
-  desktopMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  desktopMap.touchZoomRotate.disableRotation();
-  desktopMap.on('load', () => { if (!venuesLoaded) loadVenues(); });
-
-  mobileMap = new maplibregl.Map({ container: 'map-mobile', style: mapStyle, center: [-77.06, 38.91], zoom: 10 });
-  mobileMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  mobileMap.touchZoomRotate.disableRotation();
-  mobileMap.on('load', () => { if (!venuesLoaded) loadVenues(); });
-
-  document.getElementById('popup-close').addEventListener('click', clearSelection);
-  document.getElementById('detail-close').addEventListener('click', hideDetail);
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll(`.filter-btn[data-filter="${btn.dataset.filter}"]`).forEach(b => b.classList.add('active'));
-      document.querySelectorAll(`.filter-btn:not([data-filter="${btn.dataset.filter}"])`).forEach(b => b.classList.remove('active'));
-      activeFilter = btn.dataset.filter;
-      clearSelection();
-      hideDetail();
-      renderMarkers();
-      renderLists();
+      };
+      list.appendChild(card);
     });
   });
+}
+
+// ── Popup (desktop) ────────────────────────────────────
+function openPopup(idx) {
+  selectedIdx = idx;
+  const v = venues[idx];
+  document.querySelectorAll('.venue-card').forEach(c => c.classList.toggle('on', +c.dataset.idx === idx));
+  dMarkers.forEach((m, i) => {
+    const el = m.getElement();
+    const is = venues.indexOf(filtered()[i]) === idx;
+    el.style.transform = is ? 'scale(1.5)' : 'scale(1)';
+    el.style.zIndex = is ? '10' : '1';
+  });
+  desktopMap && desktopMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
+  document.getElementById('popup-name').textContent = v.name;
+  document.getElementById('popup-hood').textContent = v.neighborhood;
+  const tbadge = v.team ? '<span class="team-badge">' + v.team + '</span>' : '<span style="color:var(--muted);font-size:13px;">No affiliation</span>';
+  const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
+  document.getElementById('popup-body').innerHTML =
+    '<div class="popup-row"><span class="popup-lbl">Hours</span><span class="popup-val">' + v.hours + '</span></div>' +
+    '<div class="popup-row"><span class="popup-lbl">Games</span><span class="popup-val">' + v.games + '</span></div>' +
+    '<div class="popup-row"><span class="popup-lbl">Team</span><span class="popup-val">' + tbadge + '</span></div>' +
+    '<div class="popup-hr"></div>' +
+    '<div class="popup-note">' + v.note + '</div>' +
+    '<a class="popup-maps" href="' + mapsUrl + '" target="_blank">Open in Google Maps →</a>';
+  document.getElementById('popup').classList.add('on');
+  const card = document.querySelector('#venue-list .venue-card[data-idx="' + idx + '"]');
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function closePopup() {
+  selectedIdx = null;
+  document.getElementById('popup').classList.remove('on');
+  document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('on'));
+  dMarkers.forEach(m => { m.getElement().style.transform = 'scale(1)'; m.getElement().style.zIndex = '1'; });
+}
+
+// ── Detail sheet (mobile) ──────────────────────────────
+function openSheet(idx) {
+  selectedIdx = idx;
+  const v = venues[idx];
+  document.getElementById('sheet-name').textContent = v.name;
+  document.getElementById('sheet-hood').textContent = v.neighborhood;
+  const tbadge = v.team ? '<span class="team-badge">' + v.team + '</span>' : '<span style="color:var(--muted);font-size:13px;">No affiliation</span>';
+  const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
+  document.getElementById('sheet-body').innerHTML =
+    '<div class="sheet-row"><span class="sheet-lbl">Hours</span><span class="sheet-val">' + v.hours + '</span></div>' +
+    '<div class="sheet-row"><span class="sheet-lbl">Games</span><span class="sheet-val">' + v.games + '</span></div>' +
+    '<div class="sheet-row"><span class="sheet-lbl">Team</span><span class="sheet-val">' + tbadge + '</span></div>' +
+    '<div class="sheet-note">' + v.note + '</div>' +
+    '<a class="sheet-maps" href="' + mapsUrl + '" target="_blank">Open in Google Maps →</a>';
+  document.getElementById('detail-sheet').classList.add('on');
+}
+
+function closeSheet() {
+  document.getElementById('detail-sheet').classList.remove('on');
+  selectedIdx = null;
+}
+
+// ── Match strip ────────────────────────────────────────
+function updateStrip(forDate) {
+  const strip  = document.getElementById('match-strip');
+  const label  = document.getElementById('strip-label');
+  const items  = document.getElementById('strip-items');
+  const today  = new Date().toISOString().split('T')[0];
+  const target = forDate || today;
+  const day    = allMatches.filter(m => m.date === target);
+
+  const fmtDate = d => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+
+  if (!day.length && !forDate) {
+    const next = allMatches.find(m => m.date > today);
+    if (!next) return;
+    label.textContent = 'Next';
+    items.innerHTML = '<div class="strip-empty">No games today — next: ' + next.home + ' vs ' + next.away + ' · ' + fmtDate(next.date) + '</div>';
+    strip.classList.remove('hidden');
+  } else if (!day.length) {
+    label.textContent = fmtDate(target);
+    items.innerHTML = '<div class="strip-empty">No matches on this date</div>';
+    strip.classList.remove('hidden');
+  } else {
+    label.textContent = forDate && forDate !== today ? fmtDate(target) : 'Today';
+    items.innerHTML = day.map(m =>
+      '<div class="strip-match">' +
+        '<div class="strip-teams">' + m.home + '<em>vs</em>' + m.away + '</div>' +
+        (m.time ? '<div class="strip-time">' + m.time + '</div>' : '') +
+        (m.channel ? '<div class="strip-channel">' + m.channel + '</div>' : '') +
+      '</div>'
+    ).join('');
+    strip.classList.remove('hidden');
+  }
+  adjustLayout();
+}
+
+function adjustLayout() {
+  const h = document.getElementById('match-strip').offsetHeight;
+  document.querySelector('.layout').style.top = h + 'px';
+}
+
+// ── Load data ──────────────────────────────────────────
+async function loadVenues() {
+  if (venuesLoaded) return;
+  venuesLoaded = true;
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = parseCSV(await res.text()).filter(r => r.name && r.lat && r.lng);
+    if (!rows.length) throw new Error('No venues found');
+    venues = rows.map(r => ({
+      name: r.name, neighborhood: r.neighborhood || '',
+      lat: parseFloat(r.lat), lng: parseFloat(r.lng),
+      hours: r.hours || '', games: r.games || '',
+      team: r.team || null, note: r.note || '',
+      showAllGames: (r.showAllGames || '').toUpperCase() === 'TRUE',
+      usaSpecial:   (r.usaSpecial   || '').toUpperCase() === 'TRUE',
+    }));
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('loading-mobile').style.display = 'none';
+    renderMarkers();
+    renderLists();
+    loadMatches();
+  } catch(e) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('loading-mobile').style.display = 'none';
+    const el = document.getElementById('error-msg');
+    if (el) { el.textContent = 'Could not load venues: ' + e.message; el.classList.add('on'); }
+  }
+}
+
+async function loadMatches() {
+  try {
+    const res = await fetch(MATCHES_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text()).filter(r => r.date && r.home && r.away);
+    allMatches = rows;
+    const dates = [...new Set(rows.map(r => r.date))].sort();
+    ['date-filter','mobile-date'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && dates.length) { el.min = dates[0]; el.max = dates[dates.length-1]; }
+    });
+    updateStrip();
+  } catch(e) {}
+}
+
+// ── Search ─────────────────────────────────────────────
+function doSearch(q) {
+  searchQuery = q.trim();
+  ['search-clear','mobile-search-clear'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', q.length > 0);
+  });
+  document.getElementById('search-input').value = q;
+  document.getElementById('mobile-search').value = q;
+  closePopup(); closeSheet();
+  renderMarkers(); renderLists();
+}
+
+// ── Country filter ─────────────────────────────────────
+function doCountry(val) {
+  countryFilter = val;
+  ['country-select','mobile-country'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = val; el.classList.toggle('on', val !== ''); }
+  });
+  closePopup(); closeSheet();
+  renderMarkers(); renderLists();
+}
+
+// ── Date filter ────────────────────────────────────────
+function doDate(val) {
+  dateFilter = val;
+  ['date-filter','mobile-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = val; el.classList.toggle('on', val !== ''); }
+  });
+  if (val) updateStrip(val); else updateStrip();
+  closePopup(); closeSheet();
+  renderMarkers(); renderLists();
+}
+
+// ── Near me ────────────────────────────────────────────
+function toggleNearMe() {
+  if (nearMeOn) {
+    nearMeOn = false; userLat = null; userLng = null;
+    document.querySelectorAll('#near-me-btn, #mobile-near-me').forEach(b => b.classList.remove('on'));
+    renderMarkers(); renderLists();
+    return;
+  }
+  if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+    nearMeOn = true;
+    document.querySelectorAll('#near-me-btn, #mobile-near-me').forEach(b => b.classList.add('on'));
+    venues.sort((a, b) => (Math.pow(a.lat-userLat,2)+Math.pow(a.lng-userLng,2)) - (Math.pow(b.lat-userLat,2)+Math.pow(b.lng-userLng,2)));
+    const map = isMobile() ? mobileMap : desktopMap;
+    if (map) map.flyTo({ center: [userLng, userLat], zoom: 12, duration: 500 });
+    renderMarkers(); renderLists();
+  }, () => alert('Could not get location — check browser permissions'));
+}
+
+// ── Event listeners ────────────────────────────────────
+document.getElementById('search-input').addEventListener('input',  e => doSearch(e.target.value));
+document.getElementById('mobile-search').addEventListener('input', e => doSearch(e.target.value));
+document.getElementById('search-clear').addEventListener('click',       () => doSearch(''));
+document.getElementById('mobile-search-clear').addEventListener('click',() => doSearch(''));
+document.getElementById('country-select').addEventListener('change', e => doCountry(e.target.value));
+document.getElementById('mobile-country').addEventListener('change',  e => doCountry(e.target.value));
+document.getElementById('date-filter').addEventListener('change', e => doDate(e.target.value));
+document.getElementById('mobile-date').addEventListener('change',  e => doDate(e.target.value));
+document.getElementById('near-me-btn').addEventListener('click',    toggleNearMe);
+document.getElementById('mobile-near-me').addEventListener('click', toggleNearMe);
+document.getElementById('popup-close').addEventListener('click', closePopup);
+document.getElementById('sheet-close').addEventListener('click', closeSheet);
+
+document.querySelectorAll('.pill[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.pill[data-filter="' + btn.dataset.filter + '"]').forEach(b => b.classList.add('on'));
+    document.querySelectorAll('.pill[data-filter]:not([data-filter="' + btn.dataset.filter + '"])').forEach(b => b.classList.remove('on'));
+    activeFilter = btn.dataset.filter;
+    closePopup(); closeSheet();
+    renderMarkers(); renderLists();
+  });
+});
+
+// ── Maps ───────────────────────────────────────────────
+const STYLE  = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
+const CENTER = [-77.04, 38.905];
+
+desktopMap = new maplibregl.Map({ container: 'map', style: STYLE, center: CENTER, zoom: 11.5 });
+desktopMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+desktopMap.touchZoomRotate.disableRotation();
+desktopMap.on('load', loadVenues);
+
+mobileMap = new maplibregl.Map({ container: 'map-mobile', style: STYLE, center: [-77.06, 38.91], zoom: 10 });
+mobileMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+mobileMap.touchZoomRotate.disableRotation();
+mobileMap.on('load', loadVenues);
 </script>
 </body>
 </html>
