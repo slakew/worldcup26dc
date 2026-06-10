@@ -168,13 +168,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   <div id="sidebar">
     <div class="controls">
       <div class="search-wrap">
-        <input class="search-input" id="search-input" type="text" placeholder="Search name, neighborhood, zip…" autocomplete="off" />
+        <input class="search-input" id="search-input" type="text" placeholder="Enter zip code to find nearby venues…" autocomplete="off" />
         <button class="search-clear" id="search-clear" aria-label="Clear">×</button>
       </div>
       <div class="filter-row">
         <button class="pill on" data-filter="all">All venues</button>
         <button class="pill" data-filter="usa">🇺🇸 USA bars</button>
-        <button class="pill" id="near-me-btn">📍 Near me</button>
       </div>
       <div class="filter-row">
         <span class="filter-label">Filter by</span>
@@ -222,7 +221,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   <div id="mob-list">
     <div class="mob-controls">
       <div class="search-wrap">
-        <input class="search-input" id="mobile-search" type="text" placeholder="Search name, neighborhood, zip…" autocomplete="off" />
+        <input class="search-input" id="mobile-search" type="text" placeholder="Enter zip code to find nearby venues…" autocomplete="off" />
         <button class="search-clear" id="mobile-search-clear" aria-label="Clear">×</button>
       </div>
       <div class="mob-filters">
@@ -239,7 +238,6 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
           <option>🇵🇾 Paraguay</option><option>🇹🇷 Turkey</option>
         </select>
         <input type="date" class="datepick" id="mobile-date" aria-label="Match date" />
-        <button class="pill" id="mobile-near-me">📍 Near me</button>
       </div>
       <div class="mob-count" id="mobile-count">Loading…</div>
     </div>
@@ -264,7 +262,6 @@ let venues = [], allMatches = [];
 let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
 let venuesLoaded = false;
 let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '';
-let nearMeOn = false, userLat = null, userLng = null;
 let selectedIdx = null;
 const isMobile = () => window.innerWidth <= 680;
 
@@ -318,6 +315,30 @@ const ZIPS = {
   '20783':['hyattsville'],'20784':['hyattsville','riverdale'],'20785':['hyattsville','landover'],
 };
 
+
+const ZIP_CENTERS = {
+  '20001':[38.9126,-77.0196],'20002':[38.9010,-76.9876],'20003':[38.8822,-76.9955],
+  '20004':[38.8952,-77.0282],'20005':[38.9046,-77.0326],'20006':[38.8989,-77.0468],
+  '20007':[38.9114,-77.0694],'20008':[38.9336,-77.0635],'20009':[38.9208,-77.0427],
+  '20010':[38.9281,-77.0290],'20011':[38.9512,-77.0147],'20012':[38.9770,-77.0146],
+  '20015':[38.9668,-77.0782],'20016':[38.9440,-77.0913],'20017':[38.9345,-76.9948],
+  '20018':[38.9226,-76.9726],'20019':[38.8939,-76.9349],'20020':[38.8611,-76.9860],
+  '20024':[38.8756,-77.0205],'20032':[38.8387,-76.9977],'20036':[38.9086,-77.0455],
+  '20037':[38.9001,-77.0540],'20045':[38.8940,-77.0298],'22201':[38.8845,-77.0947],
+  '22202':[38.8614,-77.0512],'22203':[38.8715,-77.1149],'22204':[38.8558,-77.0986],
+  '22205':[38.8811,-77.1404],'22206':[38.8415,-77.1005],'22207':[38.9030,-77.1316],
+  '22209':[38.8955,-77.0719],'22301':[38.8373,-77.0636],'22302':[38.8208,-77.0760],
+  '22303':[38.7931,-77.0758],'22304':[38.8163,-77.1010],'22305':[38.8503,-77.0474],
+  '22306':[38.7719,-77.0862],'22310':[38.7700,-77.1140],'22314':[38.8057,-77.0472],
+  '22315':[38.7619,-77.1340],'20190':[38.9586,-77.3570],'20191':[38.9368,-77.3442],
+  '20194':[38.9735,-77.3530],'22101':[38.9337,-77.1773],'22102':[38.9226,-77.2270],
+  '22182':[38.9036,-77.2630],'20852':[39.0473,-77.1170],'20854':[39.0179,-77.2020],
+  '20878':[39.1312,-77.2104],'20902':[39.0126,-77.0510],'20906':[39.0655,-77.0567],
+  '20910':[38.9942,-77.0322],'20912':[38.9835,-77.0029],'20740':[38.9907,-76.9341],
+  '20742':[38.9869,-76.9443],'20783':[38.9620,-76.9467],'20784':[38.9430,-76.9170],
+  '20785':[38.9241,-76.8921],
+};
+
 function parseCSV(text) {
   const lines = text.trim().split("\n").map(l => l.replace(/\r/g, "")).filter(l => l.trim());
   if (lines.length < 2) return [];
@@ -357,7 +378,18 @@ function filtered() {
     const q = searchQuery.toLowerCase();
     if (/^\d{5}$/.test(q)) {
       const hoods = ZIPS[q];
-      base = hoods ? base.filter(v => hoods.some(h => v.neighborhood.toLowerCase().includes(h))) : [];
+      const center = ZIP_CENTERS[q];
+      if (hoods) {
+        base = base.filter(v => hoods.some(h => v.neighborhood.toLowerCase().includes(h)));
+      } else if (center) {
+        base = [...base].sort((a, b) => {
+          const da = Math.pow(a.lat-center[0],2)+Math.pow(a.lng-center[1],2);
+          const db = Math.pow(b.lat-center[0],2)+Math.pow(b.lng-center[1],2);
+          return da - db;
+        }).slice(0, 5);
+      } else {
+        base = [];
+      }
     } else {
       base = base.filter(v =>
         v.name.toLowerCase().includes(q) ||
@@ -408,7 +440,7 @@ function renderLists() {
   ml.innerHTML = '';
   if (!f.length) {
     const isSearch = searchQuery.length > 0;
-    const html = '<div class="empty"><div class="empty-icon">' + (isSearch ? '🔍' : '📍') + '</div><div class="empty-title">' + (isSearch ? 'No venues found' : 'No venues here') + '</div><div class="empty-sub">' + (isSearch ? 'No results for "' + searchQuery + '"' : 'Try a different filter') + '</div></div>';
+    const html = '<div class="empty"><div class="empty-icon">' + (isSearch ? '🔍' : '📍') + '</div><div class="empty-title">' + (isSearch ? 'No venues found' : 'No venues here') + '</div><div class="empty-sub">' + (isSearch ? (/^\\d{5}$/.test(searchQuery) ? 'No venues near ' + searchQuery : 'No results for "' + searchQuery + '"') : 'Try a different filter') + '</div></div>';
     dl.innerHTML += html; ml.innerHTML = html; return;
   }
   f.forEach(v => {
@@ -600,22 +632,7 @@ function doDate(val) {
   closePopup(); closeSheet(); renderMarkers(); renderLists();
 }
 
-function toggleNearMe() {
-  if (nearMeOn) {
-    nearMeOn = false; userLat = null; userLng = null;
-    document.querySelectorAll('#near-me-btn,#mobile-near-me').forEach(b => b.classList.remove('on'));
-    renderMarkers(); renderLists(); return;
-  }
-  if (!navigator.geolocation) { alert('Geolocation not supported'); return; }
-  navigator.geolocation.getCurrentPosition(pos => {
-    userLat = pos.coords.latitude; userLng = pos.coords.longitude; nearMeOn = true;
-    document.querySelectorAll('#near-me-btn,#mobile-near-me').forEach(b => b.classList.add('on'));
-    venues.sort((a, b) => (Math.pow(a.lat-userLat,2)+Math.pow(a.lng-userLng,2)) - (Math.pow(b.lat-userLat,2)+Math.pow(b.lng-userLng,2)));
-    const map = isMobile() ? mobileMap : desktopMap;
-    if (map) map.flyTo({ center: [userLng, userLat], zoom: 12, duration: 500 });
-    renderMarkers(); renderLists();
-  }, () => alert('Could not get location — check browser permissions'));
-}
+
 
 document.getElementById('search-input').addEventListener('input',  e => doSearch(e.target.value));
 document.getElementById('mobile-search').addEventListener('input', e => doSearch(e.target.value));
@@ -625,8 +642,6 @@ document.getElementById('country-select').addEventListener('change', e => doCoun
 document.getElementById('mobile-country').addEventListener('change',  e => doCountry(e.target.value));
 document.getElementById('date-filter').addEventListener('change', e => doDate(e.target.value));
 document.getElementById('mobile-date').addEventListener('change',  e => doDate(e.target.value));
-document.getElementById('near-me-btn').addEventListener('click',    toggleNearMe);
-document.getElementById('mobile-near-me').addEventListener('click', toggleNearMe);
 document.getElementById('popup-close').addEventListener('click', closePopup);
 document.getElementById('sheet-close').addEventListener('click', closeSheet);
 
