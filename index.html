@@ -7,10 +7,10 @@
 <link href="https://unpkg.com/maplibre-gl@4.7.0/dist/maplibre-gl.css" rel="stylesheet" />
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 14px; color: #1a1a18; background: #f5f4f1; }
+html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 14px; color: #1A1A2E; background: #F5F0E8; }
 
 :root {
-  --ink: #1A1A2E; --ink2: #3a3a54; --ink3: #8a8a9a;
+  --ink:  #1A1A2E; --ink2: #3a3a54; --ink3: #8a8a9a;
   --line: #e8e4d8; --line2: #d4cfc0;
   --surface: #fff; --wash: #F5F0E8;
   --accent: #D42B2B; --accent-bg: #FDEAEA;
@@ -19,34 +19,35 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   --r: 10px; --r-sm: 6px;
 }
 
-/* Match strip */
+/* ── Match strip ── */
 #match-strip { background: #1A1A2E; width: 100%; flex-shrink: 0; }
-#country-strip { background: var(--surface); width: 100%; flex-shrink: 0; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; display: none; }
-#country-strip::-webkit-scrollbar { display: none; }
-#country-strip.on { display: flex; align-items: center; }
-.cstrip-inner { display: flex; align-items: center; gap: 5px; padding: 7px 14px; flex-shrink: 0; }
-.cpill { height: 28px; padding: 0 12px; font-size: 12px; font-family: inherit; border: 1px solid var(--line2); border-radius: 6px; background: var(--wash); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.13s; outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
-.cpill:hover { background: var(--line); color: var(--ink); }
-.cpill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 #match-strip.hidden { display: none; }
 .strip-inner { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
 .strip-inner::-webkit-scrollbar { display: none; }
-.strip-label { font-size: 9px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: #F5C800; padding: 9px 14px; display: flex; align-items: center; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
-.strip-match { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-right: 1px solid rgba(255,255,255,0.06); white-space: nowrap; flex-shrink: 0; }
+.strip-label { font-size: 9px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--yellow); padding: 9px 14px; display: flex; align-items: center; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.strip-match { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-right: 1px solid rgba(255,255,255,0.06); white-space: nowrap; flex-shrink: 0; cursor: pointer; transition: background 0.15s; }
+.strip-match:hover { background: rgba(255,255,255,0.05); }
+.strip-match.active { background: rgba(245,200,0,0.15); }
 .strip-teams { font-size: 12px; font-weight: 600; color: #fff; }
 .strip-teams em { color: rgba(255,255,255,0.3); font-style: normal; font-weight: 400; margin: 0 5px; }
 .strip-time { font-size: 11px; color: rgba(255,255,255,0.4); }
 .strip-channel { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
-.strip-empty { font-size: 11px; color: rgba(255,255,255,0.35); padding: 9px 16px; transition: background 0.15s; }
+.strip-empty { font-size: 11px; color: rgba(255,255,255,0.35); padding: 9px 16px; cursor: pointer; transition: background 0.15s; }
 .strip-empty:hover { background: rgba(255,255,255,0.05); }
-.strip-match { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-right: 1px solid rgba(255,255,255,0.06); white-space: nowrap; flex-shrink: 0; transition: background 0.15s; }
-.strip-match:hover { background: rgba(255,255,255,0.05); }
-.strip-match.active, .strip-empty.active { background: rgba(245,200,0,0.15); }
+.strip-empty.active { background: rgba(245,200,0,0.15); }
 
-/* Layout */
+/* ── Country strip ── */
+#country-strip { background: var(--surface); width: 100%; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; display: flex; align-items: center; }
+#country-strip::-webkit-scrollbar { display: none; }
+.cstrip-inner { display: flex; align-items: center; gap: 5px; padding: 7px 14px; flex-shrink: 0; }
+.cpill { height: 28px; padding: 0 12px; font-size: 12px; font-family: inherit; border: 1px solid var(--line2); border-radius: 6px; background: var(--wash); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.13s; outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+.cpill:hover { background: var(--line); color: var(--ink); }
+.cpill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── Layout ── */
 .layout { position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; }
 
-/* Sidebar */
+/* ── Sidebar ── */
 #sidebar { width: 300px; min-width: 300px; background: var(--surface); border-right: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; }
 
 .controls { padding: 12px 14px 10px; border-bottom: 1px solid var(--line); flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; }
@@ -72,18 +73,14 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .datepick:hover { background-color: #f7d0d0; }
 .datepick.on { background: var(--accent); color: #fff; }
 
-.filter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink3); }
-.country-pill { font-size: 11px !important; padding: 0 9px !important; height: 26px !important; }
-.active-filter-bar { display: none; align-items: center; justify-content: space-between; padding: 5px 14px; background: #F5C800; border-bottom: 1px solid #e8b800; font-size: 11px; font-weight: 700; color: #1A1A2E; flex-shrink: 0; }
+/* Active filter bar */
+.active-filter-bar { display: none; align-items: center; justify-content: space-between; padding: 5px 14px; background: var(--yellow); border-bottom: 1px solid #e8b800; font-size: 11px; font-weight: 700; color: var(--ink); flex-shrink: 0; }
 .active-filter-bar.on { display: flex; }
-.active-filter-clear { background: #1A1A2E; color: #F5C800; border: none; border-radius: 4px; font-size: 10px; font-weight: 700; padding: 2px 8px; cursor: pointer; font-family: inherit; letter-spacing: 0.5px; }
-.active-filter-clear:hover { background: #D42B2B; }
+.active-filter-clear { background: var(--ink); color: var(--yellow); border: none; border-radius: 4px; font-size: 10px; font-weight: 700; padding: 2px 8px; cursor: pointer; font-family: inherit; }
+.active-filter-clear:hover { background: var(--accent); }
 
-.meta { display: flex; align-items: center; justify-content: space-between; padding: 7px 14px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+.meta { padding: 7px 14px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
 .venue-count { font-size: 11px; color: var(--ink3); }
-.legend { display: flex; gap: 10px; }
-.leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--ink3); }
-.dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); flex-shrink: 0; }
 
 #venue-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
@@ -91,13 +88,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .venue-card:last-child { border-bottom: none; }
 .venue-card:hover { background: var(--wash); }
 .venue-card.on { border-left-color: var(--accent); background: var(--accent-bg); }
-
 .vc-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
 .vc-hood { font-size: 11px; color: var(--ink3); margin-bottom: 5px; }
 .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
 .tag { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
-.tag-team { background: var(--blue-bg); color: var(--blue); }
-.tag-all { background: var(--yellow-bg); color: #7a6000; }
+.tag-team  { background: var(--blue-bg);   color: var(--blue); }
+.tag-all   { background: var(--yellow-bg); color: #7a6000; }
 .tag-hours { background: var(--wash); color: var(--ink2); border: 1px solid var(--line); }
 
 .empty { padding: 48px 16px; text-align: center; }
@@ -108,7 +104,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .error-msg { display: none; margin: 12px; padding: 11px 13px; border-radius: var(--r-sm); background: #fdf0f0; color: #a02020; font-size: 12px; line-height: 1.5; }
 .error-msg.on { display: block; }
 
-/* Map */
+/* ── Map ── */
 #map-wrap { flex: 1; position: relative; }
 #map { width: 100%; height: 100%; }
 .maplibregl-ctrl-attrib { font-size: 10px !important; }
@@ -119,6 +115,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 12px; color: var(--ink3); }
 
+/* Map legend */
+#map-legend { position: absolute; bottom: 28px; right: 12px; background: rgba(255,255,255,0.92); border: 0.5px solid var(--line); border-radius: var(--r-sm); padding: 7px 10px; z-index: 10; display: flex; flex-direction: column; gap: 5px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--ink2); }
+.dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.15); flex-shrink: 0; }
+
+/* Desktop popup */
 #popup { position: absolute; bottom: 20px; left: 16px; width: 280px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: none; z-index: 20; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
 #popup.on { display: block; }
 .popup-x { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-radius: 50%; background: var(--wash); border: none; cursor: pointer; font-size: 15px; color: var(--ink3); display: flex; align-items: center; justify-content: center; font-family: inherit; }
@@ -134,7 +136,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .popup-maps:hover { text-decoration: underline; }
 .team-badge { display: inline-block; background: var(--blue-bg); color: var(--blue); font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 10px; }
 
-/* Mobile */
+/* ── Mobile ── */
 #mobile-layout { display: none; flex-direction: column; min-height: 100vh; }
 #mob-map-wrap { width: 100%; height: 55vw; min-height: 220px; max-height: 340px; position: relative; flex-shrink: 0; }
 #map-mobile { width: 100%; height: 100%; }
@@ -164,7 +166,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 @media (max-width: 680px) {
   html, body { overflow: auto; }
   .layout { display: none; }
-  #match-strip { position: sticky; top: 0; z-index: 50; }
+  #match-strip, #country-strip { position: sticky; top: 0; z-index: 50; }
   #mobile-layout { display: flex; }
   #detail-sheet { display: block; }
 }
@@ -179,7 +181,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   </div>
 </div>
 
-<div id="country-strip" class="on">
+<div id="country-strip">
   <div class="cstrip-inner">
     <button class="cpill on" data-country="">All</button>
     <button class="cpill" data-country="🇺🇸 USA">🇺🇸 USA</button>
@@ -209,11 +211,12 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   <div id="sidebar">
     <div class="controls">
       <div class="search-wrap">
-        <input class="search-input" id="search-input" type="text" placeholder="Enter zip code to find nearby venues…" autocomplete="off" />
+        <input class="search-input" id="search-input" type="text" placeholder="Search by name, neighborhood, or zip…" autocomplete="off" />
         <button class="search-clear" id="search-clear" aria-label="Clear">×</button>
       </div>
       <div class="filter-row">
         <button class="pill on" data-filter="all">All</button>
+        <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
         <select class="cselect" id="type-select" aria-label="Venue type">
           <option value="all">All types</option>
           <option value="bar">🍺 Bar</option>
@@ -221,31 +224,27 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
           <option value="outdoor">🌳 Outdoor</option>
           <option value="restaurant">🍽️ Restaurant</option>
         </select>
-        <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
         <input type="date" class="datepick" id="date-filter" aria-label="Match date" />
       </div>
-
     </div>
     <div class="active-filter-bar" id="active-filter-bar">
       <span id="active-filter-text">⚽ Filtering by match</span>
       <button class="active-filter-clear" id="active-filter-clear">✕ Clear</button>
     </div>
-    <div class="meta">
-      <span class="venue-count" id="venue-count">Loading…</span>
-      <div class="legend">
-        <div class="leg"><div class="dot" style="background:#1A3A8F"></div>Bar</div>
-        <div class="leg"><div class="dot" style="background:#D42B2B"></div>Restaurant</div>
-        <div class="leg"><div class="dot" style="background:#2A8B3E"></div>Outdoor</div>
-        <div class="leg"><div class="dot" style="background:#F5C800;border-color:#d4cfc0;"></div>Watch party</div>
-        <div class="leg"><div class="dot" style="background:#9B59B6"></div>Kid-friendly</div>
-      </div>
-    </div>
+    <div class="meta"><span class="venue-count" id="venue-count">Loading…</span></div>
     <div id="venue-list"><div class="error-msg" id="error-msg"></div></div>
   </div>
 
   <div id="map-wrap">
     <div id="map"></div>
     <div id="loading"><div class="spinner"></div><div class="loading-text">Loading venues…</div></div>
+    <div id="map-legend">
+      <div class="leg"><div class="dot" style="background:#1A3A8F"></div>Bar</div>
+      <div class="leg"><div class="dot" style="background:#D42B2B"></div>Restaurant</div>
+      <div class="leg"><div class="dot" style="background:#2A8B3E"></div>Outdoor</div>
+      <div class="leg"><div class="dot" style="background:#F5C800;border-color:#d4cfc0;"></div>Watch party</div>
+      <div class="leg"><div class="dot" style="background:#9B59B6"></div>Kid-friendly</div>
+    </div>
     <div id="popup">
       <button class="popup-x" id="popup-close">×</button>
       <div class="popup-name" id="popup-name"></div>
@@ -263,20 +262,19 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   <div id="mob-list">
     <div class="mob-controls">
       <div class="search-wrap">
-        <input class="search-input" id="mobile-search" type="text" placeholder="Enter zip code to find nearby venues…" autocomplete="off" />
+        <input class="search-input" id="mobile-search" type="text" placeholder="Search by name, neighborhood, or zip…" autocomplete="off" />
         <button class="search-clear" id="mobile-search-clear" aria-label="Clear">×</button>
       </div>
       <div class="mob-filters">
         <button class="pill on" data-filter="all">All</button>
-        <select class="cselect" id="type-select" aria-label="Venue type">
+        <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
+        <select class="cselect" id="mobile-type-select" aria-label="Venue type">
           <option value="all">All types</option>
           <option value="bar">🍺 Bar</option>
           <option value="watchparty">🎉 Watch party</option>
           <option value="outdoor">🌳 Outdoor</option>
           <option value="restaurant">🍽️ Restaurant</option>
         </select>
-        <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
-
         <input type="date" class="datepick" id="mobile-date" aria-label="Match date" />
       </div>
       <div class="mob-count" id="mobile-count">Loading…</div>
@@ -302,6 +300,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 const SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv';
 const MATCHES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=903992166&single=true&output=csv';
 
+// ── State ──────────────────────────────────────────────
 let venues = [], allMatches = [];
 let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
 let venuesLoaded = false;
@@ -309,6 +308,7 @@ let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '';
 let selectedIdx = null;
 const isMobile = () => window.innerWidth <= 680;
 
+// ── Zip lookup ─────────────────────────────────────────
 const ZIPS = {
   '20001':['shaw','bloomingdale','ledroit park','edgewood'],
   '20002':['edgewood','brookland','trinidad','capitol hill'],
@@ -359,7 +359,6 @@ const ZIPS = {
   '20783':['hyattsville'],'20784':['hyattsville','riverdale'],'20785':['hyattsville','landover'],
 };
 
-
 const ZIP_CENTERS = {
   '20001':[38.9126,-77.0196],'20002':[38.9010,-76.9876],'20003':[38.8822,-76.9955],
   '20004':[38.8952,-77.0282],'20005':[38.9046,-77.0326],'20006':[38.8989,-77.0468],
@@ -383,47 +382,62 @@ const ZIP_CENTERS = {
   '20785':[38.9241,-76.8921],
 };
 
+// ── Helpers ────────────────────────────────────────────
 function stripFlags(str) {
   return (str || '').replace(/[\u{1F1E0}-\u{1F1FF}\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '').trim();
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split("\n").map(l => l.replace(/\r/g, "")).filter(l => l.trim());
+  const lines = text.trim().split('\n').map(l => l.replace(/\r/g, '')).filter(l => l.trim());
   if (lines.length < 2) return [];
-  const delim = lines[0].indexOf("\t") !== -1 ? "\t" : ",";
-  const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g, ""));
+  const delim = lines[0].indexOf('\t') !== -1 ? '\t' : ',';
+  const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g, ''));
   return lines.slice(1).map(line => {
     let fields;
-    if (delim === "\t") {
-      fields = line.split("\t").map(f => f.trim().replace(/^"|"$/g, ""));
+    if (delim === '\t') {
+      fields = line.split('\t').map(f => f.trim().replace(/^"|"$/g, ''));
     } else {
-      fields = []; let cur = "", inQ = false;
+      fields = []; let cur = '', inQ = false;
       for (let i = 0; i < line.length; i++) {
         if (line[i] === '"') inQ = !inQ;
-        else if (line[i] === "," && !inQ) { fields.push(cur.trim()); cur = ""; }
+        else if (line[i] === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
         else cur += line[i];
       }
       fields.push(cur.trim());
     }
     const obj = {};
-    headers.forEach((h, i) => { obj[h] = (fields[i] || "").replace(/^"|"$/g, "").trim(); });
+    headers.forEach((h, i) => { obj[h] = (fields[i] || '').replace(/^"|"$/g, '').trim(); });
     return obj;
   });
 }
 
+function fmtDate(d) {
+  const parts = (d || '').trim().split('-');
+  if (parts.length !== 3) return d;
+  const dt = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+}
+
+// ── Filter logic ───────────────────────────────────────
 function filtered() {
   let base = venues;
-  if (activeFilter === 'bar') base = base.filter(v => !v.type || v.type === 'bar');
-  else if (activeFilter === 'watchparty') base = base.filter(v => v.type === 'watch party' || v.type === 'watchparty');
-  else if (activeFilter === 'outdoor') base = base.filter(v => ['outdoor','outdoor screening','park'].includes(v.type));
+
+  // Type / kid-friendly filter
+  if (activeFilter === 'bar')         base = base.filter(v => !v.type || v.type === 'bar');
+  else if (activeFilter === 'watchparty') base = base.filter(v => ['watch party','watchparty'].includes(v.type));
+  else if (activeFilter === 'outdoor')    base = base.filter(v => ['outdoor','outdoor screening','park'].includes(v.type));
   else if (activeFilter === 'restaurant') base = base.filter(v => v.type === 'restaurant');
   else if (activeFilter === 'kidfriendly') base = base.filter(v => v.kidFriendly === true);
+
+  // Country filter — country-specific first, then all-games
   if (countryFilter) {
     const cf = stripFlags(countryFilter).toLowerCase().trim();
-    const countryVenues = base.filter(v => v.team && stripFlags(v.team).toLowerCase().trim() === cf);
-    const allGameVenues = base.filter(v => v.showAllGames && (!v.team || stripFlags(v.team).toLowerCase().trim() !== cf));
-    base = [...countryVenues, ...allGameVenues];
+    const specific  = base.filter(v => v.team && stripFlags(v.team).toLowerCase().trim() === cf);
+    const allGames  = base.filter(v => v.showAllGames && (!v.team || stripFlags(v.team).toLowerCase().trim() !== cf));
+    base = [...specific, ...allGames];
   }
+
+  // Date filter — show venues open for games that day
   if (dateFilter) {
     const dayMatches = allMatches.filter(m => m.date === dateFilter);
     if (dayMatches.length) {
@@ -431,19 +445,20 @@ function filtered() {
       base = base.filter(v => v.showAllGames || (v.team && dayTeams.some(t => stripFlags(v.team).toLowerCase().includes(t))));
     }
   }
+
+  // Search
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     if (/^\d{5}$/.test(q)) {
-      const hoods = ZIPS[q];
+      const hoods  = ZIPS[q];
       const center = ZIP_CENTERS[q];
       if (hoods) {
         base = base.filter(v => hoods.some(h => v.neighborhood.toLowerCase().includes(h)));
       } else if (center) {
-        base = [...base].sort((a, b) => {
-          const da = Math.pow(a.lat-center[0],2)+Math.pow(a.lng-center[1],2);
-          const db = Math.pow(b.lat-center[0],2)+Math.pow(b.lng-center[1],2);
-          return da - db;
-        }).slice(0, 5);
+        base = [...base].sort((a, b) =>
+          (Math.pow(a.lat-center[0],2)+Math.pow(a.lng-center[1],2)) -
+          (Math.pow(b.lat-center[0],2)+Math.pow(b.lng-center[1],2))
+        ).slice(0, 5);
       } else {
         base = [];
       }
@@ -457,16 +472,18 @@ function filtered() {
       );
     }
   }
+
   return base;
 }
 
+// ── Pin colors by venue type ───────────────────────────
 function pinColor(v) {
   const t = (v.type || '').toLowerCase().trim();
-  if (t === 'outdoor' || t === 'outdoor screening' || t === 'park') return '#2A8B3E'; // green = outdoor
-  if (t === 'restaurant') return '#D42B2B';                                            // red = restaurant
-  if (t === 'watch party' || t === 'watchparty') return '#F5C800';                    // yellow = watch party
-  if (v.kidFriendly) return '#9B59B6';                                                // purple = kid-friendly
-  return '#1A3A8F';                                                                    // blue = bar (default)
+  if (['outdoor','outdoor screening','park'].includes(t)) return '#2A8B3E';
+  if (t === 'restaurant')                                  return '#D42B2B';
+  if (['watch party','watchparty'].includes(t))            return '#F5C800';
+  if (v.kidFriendly)                                       return '#9B59B6';
+  return '#1A3A8F';
 }
 
 function mkPin(color, idx, mapType) {
@@ -481,6 +498,7 @@ function mkPin(color, idx, mapType) {
   return wrap;
 }
 
+// ── Render ─────────────────────────────────────────────
 function renderMarkers() {
   dMarkers.forEach(m => m.remove()); dMarkers = [];
   mMarkers.forEach(m => m.remove()); mMarkers = [];
@@ -488,7 +506,7 @@ function renderMarkers() {
     const idx = venues.indexOf(v);
     const c = pinColor(v);
     if (desktopMap) dMarkers.push(new maplibregl.Marker({ element: mkPin(c, idx, 'desktop'), anchor: 'center' }).setLngLat([v.lng, v.lat]).addTo(desktopMap));
-    if (mobileMap)  mMarkers.push(new maplibregl.Marker({ element: mkPin(c, idx, 'mobile'), anchor: 'center' }).setLngLat([v.lng, v.lat]).addTo(mobileMap));
+    if (mobileMap)  mMarkers.push(new maplibregl.Marker({ element: mkPin(c, idx, 'mobile'),  anchor: 'center' }).setLngLat([v.lng, v.lat]).addTo(mobileMap));
   });
 }
 
@@ -497,33 +515,51 @@ function renderLists() {
   const ct = f.length + ' venue' + (f.length !== 1 ? 's' : '');
   document.getElementById('venue-count').textContent = ct;
   document.getElementById('mobile-count').textContent = ct;
+
   const dl = document.getElementById('venue-list');
   const ml = document.getElementById('mobile-venue-list');
   dl.innerHTML = '<div class="error-msg" id="error-msg"></div>';
   ml.innerHTML = '';
+
   if (!f.length) {
     const isSearch = searchQuery.length > 0;
-    const html = '<div class="empty"><div class="empty-icon">' + (isSearch ? '🔍' : '📍') + '</div><div class="empty-title">' + (isSearch ? 'No venues found' : 'No venues here') + '</div><div class="empty-sub">' + (isSearch ? (/^\\d{5}$/.test(searchQuery) ? 'No venues near ' + searchQuery : 'No results for "' + searchQuery + '"') : 'Try a different filter') + '</div></div>';
+    const icon  = isSearch ? '🔍' : '📍';
+    const title = isSearch ? 'No venues found' : 'No venues here';
+    const sub   = isSearch
+      ? (/^\d{5}$/.test(searchQuery) ? 'No venues near ' + searchQuery : 'No results for "' + searchQuery + '"')
+      : 'Try a different filter';
+    const html = '<div class="empty"><div class="empty-icon">' + icon + '</div><div class="empty-title">' + title + '</div><div class="empty-sub">' + sub + '</div></div>';
     dl.innerHTML += html; ml.innerHTML = html; return;
   }
+
   f.forEach(v => {
     const idx = venues.indexOf(v);
-    const teamTag = v.team ? '<span class="tag tag-team">' + v.team + '</span>' : '<span class="tag tag-all">All teams</span>';
-    const inner = '<div class="vc-name">' + v.name + '</div><div class="vc-hood">' + v.neighborhood + '</div><div class="vc-tags">' + teamTag + '<span class="tag tag-hours">' + v.hours + '</span></div>';
+    const teamTag = v.team
+      ? '<span class="tag tag-team">' + v.team + '</span>'
+      : '<span class="tag tag-all">All teams</span>';
+    const inner = '<div class="vc-name">' + v.name + '</div>'
+      + '<div class="vc-hood">' + v.neighborhood + '</div>'
+      + '<div class="vc-tags">' + teamTag + '<span class="tag tag-hours">' + v.hours + '</span></div>';
+
     [dl, ml].forEach((list, li) => {
       const card = document.createElement('div');
       card.className = 'venue-card' + (selectedIdx === idx ? ' on' : '');
       card.dataset.idx = idx;
       card.innerHTML = inner;
       card.onclick = () => {
-        if (li === 1 || isMobile()) { mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 }); openSheet(idx); }
-        else { openPopup(idx); }
+        if (li === 1 || isMobile()) {
+          mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
+          openSheet(idx);
+        } else {
+          openPopup(idx);
+        }
       };
       list.appendChild(card);
     });
   });
 }
 
+// ── Popup ──────────────────────────────────────────────
 function openPopup(idx) {
   selectedIdx = idx;
   const v = venues[idx];
@@ -538,7 +574,7 @@ function openPopup(idx) {
   desktopMap && desktopMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
   document.getElementById('popup-name').textContent = v.name;
   document.getElementById('popup-hood').textContent = v.neighborhood;
-  const tbadge = v.team ? '<span class="team-badge">' + v.team + '</span>' : '<span style="color:var(--ink3);font-size:12px;">No affiliation</span>';
+  const tbadge  = v.team ? '<span class="team-badge">' + v.team + '</span>' : '<span style="color:var(--ink3);font-size:12px;">No affiliation</span>';
   const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
   document.getElementById('popup-body').innerHTML =
     '<div class="popup-row"><span class="popup-lbl">Hours</span><span class="popup-val">' + v.hours + '</span></div>' +
@@ -558,12 +594,13 @@ function closePopup() {
   dMarkers.forEach(m => { const el = m.getElement().firstChild; if (el) el.style.transform = 'scale(1)'; m.getElement().style.zIndex = '1'; });
 }
 
+// ── Detail sheet ───────────────────────────────────────
 function openSheet(idx) {
   selectedIdx = idx;
   const v = venues[idx];
   document.getElementById('sheet-name').textContent = v.name;
   document.getElementById('sheet-hood').textContent = v.neighborhood;
-  const tbadge = v.team ? '<span class="team-badge">' + v.team + '</span>' : '<span style="color:var(--ink3);font-size:12px;">No affiliation</span>';
+  const tbadge  = v.team ? '<span class="team-badge">' + v.team + '</span>' : '<span style="color:var(--ink3);font-size:12px;">No affiliation</span>';
   const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name + ' ' + v.neighborhood + ' Washington DC');
   document.getElementById('sheet-body').innerHTML =
     '<div class="sheet-row"><span class="sheet-lbl">Hours</span><span class="sheet-val">' + v.hours + '</span></div>' +
@@ -579,27 +616,7 @@ function closeSheet() {
   selectedIdx = null;
 }
 
-function updateActiveFilterBar() {
-  const bar = document.getElementById('active-filter-bar');
-  const mbar = document.getElementById('mobile-active-filter-bar');
-  const txt = document.getElementById('active-filter-text');
-  const mtxt = document.getElementById('mobile-active-filter-text');
-
-  if (dateFilter) {
-    const matches = allMatches.filter(m => m.date === dateFilter);
-    const label = matches.length
-      ? '⚽ ' + matches.map(m => stripFlags(m.home) + ' vs ' + stripFlags(m.away)).join('  ·  ')
-      : '⚽ ' + dateFilter;
-    if (txt) txt.textContent = label;
-    if (mtxt) mtxt.textContent = label;
-    if (bar) bar.classList.add('on');
-    if (mbar) mbar.classList.add('on');
-  } else {
-    if (bar) bar.classList.remove('on');
-    if (mbar) mbar.classList.remove('on');
-  }
-}
-
+// ── Match strip ────────────────────────────────────────
 function updateStrip(forDate) {
   const strip = document.getElementById('match-strip');
   const label = document.getElementById('strip-label');
@@ -607,65 +624,69 @@ function updateStrip(forDate) {
   const today = new Date().toISOString().split('T')[0];
   const target = forDate || today;
   const day = allMatches.filter(m => m.date === target);
-  const fmtDate = d => {
-    const clean = (d || '').trim();
-    const parts = clean.split('-');
-    if (parts.length !== 3) return clean;
-    const dt = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-    return isNaN(dt) ? clean : dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
-  };
 
   if (!day.length && !forDate) {
     const next = allMatches.find(m => m.date > today);
     if (!next) return;
     label.textContent = 'Next game';
-    items.innerHTML = '<div class="strip-empty" style="cursor:pointer;" data-date="' + next.date + '">⚽ ' + next.home + ' vs ' + next.away + ' · ' + fmtDate(next.date) + (next.time ? ' · ' + next.time : '') + ' — tap to filter venues</div>';
-    setTimeout(() => {
-      const el = document.querySelector('.strip-empty[data-date]');
-      if (el) el.onclick = () => {
-        const d = el.dataset.date;
-        const isActive = el.classList.contains('active');
-        el.classList.toggle('active', !isActive);
-        if (isActive) doDate(''); else doDate(d);
-      };
-    }, 0);
+    items.innerHTML = '<div class="strip-empty" data-date="' + next.date + '">⚽ ' + next.home + ' vs ' + next.away + ' · ' + fmtDate(next.date) + (next.time ? ' · ' + next.time : '') + ' — tap to filter</div>';
   } else if (!day.length) {
     label.textContent = fmtDate(target);
     items.innerHTML = '<div class="strip-empty">No matches on this date</div>';
   } else {
     label.textContent = (forDate && forDate !== today) ? fmtDate(target) : 'Today';
     items.innerHTML = day.map(m =>
-      '<div class="strip-match" style="cursor:pointer;" data-date="' + m.date + '">' +
+      '<div class="strip-match" data-date="' + m.date + '">' +
       '<div class="strip-teams">' + m.home + '<em>vs</em>' + m.away + '</div>' +
       (m.time ? '<div class="strip-time">' + m.time + '</div>' : '') +
       (m.channel ? '<div class="strip-channel">' + m.channel + '</div>' : '') +
       '</div>'
     ).join('');
-    setTimeout(() => {
-      document.querySelectorAll('.strip-match[data-date]').forEach(el => {
-        el.onclick = () => {
-          const d = el.dataset.date;
-          const isActive = el.classList.contains('active');
-          document.querySelectorAll('.strip-match').forEach(e => e.classList.remove('active'));
-          if (isActive) { doDate(''); }
-          else { el.classList.add('active'); doDate(d); }
-        };
-      });
-    }, 0);
   }
+
   strip.classList.remove('hidden');
+
+  // Attach click handlers after DOM update
+  setTimeout(() => {
+    items.querySelectorAll('[data-date]').forEach(el => {
+      el.onclick = () => {
+        const d = el.dataset.date;
+        const wasActive = el.classList.contains('active');
+        items.querySelectorAll('[data-date]').forEach(e => e.classList.remove('active'));
+        if (wasActive) doDate('');
+        else { el.classList.add('active'); doDate(d); }
+      };
+    });
+  }, 0);
+
   adjustLayout();
 }
 
 function adjustLayout() {
-  const strip = document.getElementById('match-strip');
-  const cstrip = document.getElementById('country-strip');
-  const h1 = strip.classList.contains('hidden') ? 0 : strip.offsetHeight;
-  const h2 = cstrip ? cstrip.offsetHeight : 0;
+  const h1 = document.getElementById('match-strip').offsetHeight;
+  const h2 = document.getElementById('country-strip').offsetHeight;
   const layout = document.querySelector('.layout');
   if (layout) layout.style.top = (h1 + h2) + 'px';
 }
 
+// ── Active filter indicator ────────────────────────────
+function updateActiveFilterBar() {
+  const show = dateFilter !== '';
+  ['active-filter-bar','mobile-active-filter-bar'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.classList.toggle('on', show);
+  });
+  if (show) {
+    const matches = allMatches.filter(m => m.date === dateFilter);
+    const label = matches.length
+      ? '⚽ ' + matches.map(m => stripFlags(m.home) + ' vs ' + stripFlags(m.away)).join(' · ')
+      : '⚽ ' + dateFilter;
+    ['active-filter-text','mobile-active-filter-text'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = label;
+    });
+  }
+}
+
+// ── Data loading ───────────────────────────────────────
 async function loadVenues() {
   if (venuesLoaded) return;
   venuesLoaded = true;
@@ -675,14 +696,17 @@ async function loadVenues() {
     const rows = parseCSV(await res.text()).filter(r => r.name && r.lat && r.lng);
     if (!rows.length) throw new Error('No venues found');
     venues = rows.map(r => ({
-      name: r.name, neighborhood: r.neighborhood || '',
-      lat: parseFloat(r.lat), lng: parseFloat(r.lng),
-      hours: r.hours || '', games: r.games || '',
-      team: r.team || null, note: r.note || '',
-      showAllGames:  (r.showAllGames  || '').toUpperCase() === 'TRUE',
-      usaSpecial:    (r.usaSpecial    || '').toUpperCase() === 'TRUE',
-      type:          (r.type          || '').toLowerCase().trim(),
-      kidFriendly:   (r.kidFriendly   || r.kid_friendly || '').toUpperCase() === 'TRUE',
+      name:         r.name,
+      neighborhood: r.neighborhood || '',
+      lat:          parseFloat(r.lat),
+      lng:          parseFloat(r.lng),
+      hours:        r.hours || '',
+      games:        r.games || '',
+      team:         r.team  || null,
+      note:         r.note  || '',
+      showAllGames: (r.showAllGames || '').toUpperCase() === 'TRUE',
+      type:         (r.type || '').toLowerCase().trim(),
+      kidFriendly:  (r.kidFriendly || r.kid_friendly || '').toUpperCase() === 'TRUE',
     }));
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('loading-mobile').style.display = 'none';
@@ -713,11 +737,11 @@ async function loadMatches() {
   } catch(e) {}
 }
 
+// ── Actions ────────────────────────────────────────────
 function doSearch(q) {
   searchQuery = q.trim();
   ['search-clear','mobile-search-clear'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('on', q.length > 0);
+    const el = document.getElementById(id); if (el) el.classList.toggle('on', q.length > 0);
   });
   document.getElementById('search-input').value = q;
   document.getElementById('mobile-search').value = q;
@@ -726,9 +750,7 @@ function doSearch(q) {
 
 function doCountry(val) {
   countryFilter = val;
-  document.querySelectorAll('.cpill').forEach(b => {
-    b.classList.toggle('on', b.dataset.country === val);
-  });
+  document.querySelectorAll('.cpill').forEach(b => b.classList.toggle('on', b.dataset.country === val));
   closePopup(); closeSheet(); renderMarkers(); renderLists();
 }
 
@@ -743,58 +765,55 @@ function doDate(val) {
   closePopup(); closeSheet(); renderMarkers(); renderLists();
 }
 
+function doTypeFilter(val) {
+  activeFilter = val;
+  ['type-select','mobile-type-select'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = val;
+  });
+  document.querySelectorAll('.pill[data-filter]').forEach(b => b.classList.remove('on'));
+  if (val === 'all') document.querySelectorAll('.pill[data-filter="all"]').forEach(b => b.classList.add('on'));
+  closePopup(); closeSheet(); renderMarkers(); renderLists();
+}
 
-
+// ── Event listeners ────────────────────────────────────
 document.getElementById('search-input').addEventListener('input',  e => doSearch(e.target.value));
 document.getElementById('mobile-search').addEventListener('input', e => doSearch(e.target.value));
 document.getElementById('search-clear').addEventListener('click',        () => doSearch(''));
 document.getElementById('mobile-search-clear').addEventListener('click', () => doSearch(''));
+document.getElementById('date-filter').addEventListener('change',  e => doDate(e.target.value));
+document.getElementById('mobile-date').addEventListener('change',  e => doDate(e.target.value));
+document.getElementById('type-select').addEventListener('change',        e => doTypeFilter(e.target.value));
+document.getElementById('mobile-type-select').addEventListener('change', e => doTypeFilter(e.target.value));
+document.getElementById('popup-close').addEventListener('click', closePopup);
+document.getElementById('sheet-close').addEventListener('click', closeSheet);
+document.getElementById('active-filter-clear').addEventListener('click',        () => doDate(''));
+document.getElementById('mobile-active-filter-clear').addEventListener('click', () => doDate(''));
 
 document.querySelectorAll('.cpill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.cpill').forEach(b => b.classList.remove('on'));
-    btn.classList.add('on');
-    doCountry(btn.dataset.country);
-  });
+  btn.addEventListener('click', () => doCountry(btn.dataset.country));
 });
-document.getElementById('date-filter').addEventListener('change', e => doDate(e.target.value));
-document.getElementById('mobile-date').addEventListener('change',  e => doDate(e.target.value));
-document.getElementById('popup-close').addEventListener('click', closePopup);
-document.getElementById('active-filter-clear').addEventListener('click', () => doDate(''));
-document.getElementById('mobile-active-filter-clear').addEventListener('click', () => doDate(''));
-document.getElementById('sheet-close').addEventListener('click', closeSheet);
 
 document.querySelectorAll('.pill[data-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.pill[data-filter="' + btn.dataset.filter + '"]').forEach(b => b.classList.add('on'));
-    document.querySelectorAll('.pill[data-filter]:not([data-filter="' + btn.dataset.filter + '"])').forEach(b => b.classList.remove('on'));
+    document.querySelectorAll('.pill[data-filter]').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
     activeFilter = btn.dataset.filter;
-    ['type-select','mobile-type-select'].forEach(id => { const el = document.getElementById(id); if (el) el.value = 'all'; });
+    ['type-select','mobile-type-select'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = 'all';
+    });
     closePopup(); closeSheet(); renderMarkers(); renderLists();
   });
 });
 
-function doTypeFilter(val) {
-  activeFilter = val;
-  ['type-select','mobile-type-select'].forEach(id => { const el = document.getElementById(id); if (el) el.value = val; });
-  document.querySelectorAll('.pill[data-filter]').forEach(b => b.classList.remove('on'));
-  if (val === 'all') document.querySelectorAll('.pill[data-filter="all"]').forEach(b => b.classList.add('on'));
-  document.querySelectorAll('.pill[data-filter="kidfriendly"]').forEach(b => b.classList.remove('on'));
-  closePopup(); closeSheet(); renderMarkers(); renderLists();
-}
+// ── Maps ───────────────────────────────────────────────
+const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-document.getElementById('type-select').addEventListener('change', e => doTypeFilter(e.target.value));
-document.getElementById('mobile-type-select').addEventListener('change', e => doTypeFilter(e.target.value));
-
-const STYLE  = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
-const CENTER = [-77.04, 38.905];
-
-desktopMap = new maplibregl.Map({ container: 'map', style: STYLE, center: [-77.04, 38.905], zoom: 11 });
+desktopMap = new maplibregl.Map({ container: 'map', style: MAP_STYLE, center: [-77.04, 38.905], zoom: 11 });
 desktopMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 desktopMap.touchZoomRotate.disableRotation();
 desktopMap.on('load', loadVenues);
 
-mobileMap = new maplibregl.Map({ container: 'map-mobile', style: STYLE, center: [-77.06, 38.91], zoom: 10 });
+mobileMap = new maplibregl.Map({ container: 'map-mobile', style: MAP_STYLE, center: [-77.06, 38.91], zoom: 10 });
 mobileMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 mobileMap.touchZoomRotate.disableRotation();
 mobileMap.on('load', loadVenues);
