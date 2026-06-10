@@ -157,7 +157,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .mob-filters .pill, .mob-filters .cselect, .mob-filters .datepick { flex-shrink: 0; }
 #mobile-venue-list { overflow-y: auto; }
 
-#detail-sheet { display: block; position: fixed; left: 0; right: 0; bottom: 0; top: auto; max-height: 75vh; overflow-y: auto; background: var(--surface); border-radius: 14px 14px 0 0; border-top: 1px solid var(--line); z-index: 9999; transform: translateY(100%); transition: transform 0.26s cubic-bezier(0.32,0.72,0,1); padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 24px rgba(0,0,0,0.08); }
+#detail-sheet { display: block; position: fixed; left: 0; right: 0; bottom: 0; max-height: 55vh; overflow-y: auto; background: var(--surface); border-radius: 14px 14px 0 0; border-top: 2px solid var(--accent); z-index: 9999; transform: translateY(100%); transition: transform 0.26s cubic-bezier(0.32,0.72,0,1); padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -8px 32px rgba(0,0,0,0.18); }
 #detail-sheet.on { transform: translateY(0); }
 .sheet-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 16px 10px; border-bottom: 1px solid var(--line); }
 .sheet-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; line-height: 1.3; }
@@ -313,17 +313,11 @@ const MATCHES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxH
 function applyLayout() {
   const mobileLayout = document.getElementById('mobile-layout');
   const desktopLayout = document.querySelector('.layout');
-  const useMobile = window.innerWidth < 960 || ('ontouchstart' in window && window.innerWidth < 1200);
-  if (useMobile) {
-    mobileLayout.style.display = 'flex';
-    desktopLayout.style.display = 'none';
-  } else {
-    mobileLayout.style.display = 'none';
-    desktopLayout.style.display = 'flex';
-  }
+  _isMobile = window.innerWidth < 960 || ('ontouchstart' in window && window.innerWidth < 1200);
+  mobileLayout.style.display = _isMobile ? 'flex' : 'none';
+  desktopLayout.style.display = _isMobile ? 'none' : 'flex';
 }
-applyLayout();
-window.addEventListener('resize', applyLayout);
+window.addEventListener('resize', () => { applyLayout(); renderMarkers(); renderLists(); });
 
 // ── State ──────────────────────────────────────────────
 let venues = [], allMatches = [];
@@ -331,7 +325,8 @@ let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
 let venuesLoaded = false;
 let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '';
 let selectedIdx = null;
-const isMobile = () => window.getComputedStyle(document.getElementById("mobile-layout")).display !== "none";
+let _isMobile = false;
+const isMobile = () => _isMobile;
 
 // ── Zip lookup ─────────────────────────────────────────
 // ── Helpers ────────────────────────────────────────────
@@ -438,18 +433,8 @@ function mkPin(color, idx, mapType) {
     e.stopPropagation();
     if (isMobile()) {
       mobileMap && mobileMap.flyTo({ center: venues[idx].lng ? [venues[idx].lng, venues[idx].lat] : [0,0], zoom: 14, duration: 500 });
-      const card = document.querySelector('#mobile-venue-list .venue-card[data-idx="' + idx + '"]');
-      if (card) {
-        const isExpanded = card.classList.contains('expanded');
-        document.querySelectorAll('#mobile-venue-list .venue-card').forEach(c => c.classList.remove('expanded', 'on'));
-        if (!isExpanded) {
-          card.classList.add('expanded', 'on');
-          selectedIdx = idx;
-          setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
-        } else {
-          selectedIdx = null;
-        }
-      }
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      openSheet(idx);
     } else {
       openPopup(idx);
     }
@@ -517,16 +502,9 @@ function renderLists() {
       card.innerHTML = inner;
       card.onclick = () => {
         if (isMobile()) {
-          const isExpanded = card.classList.contains('expanded');
-          document.querySelectorAll('#mobile-venue-list .venue-card').forEach(c => c.classList.remove('expanded', 'on'));
-          if (!isExpanded) {
-            card.classList.add('expanded', 'on');
-            mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
-            selectedIdx = idx;
-            setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
-          } else {
-            selectedIdx = null;
-          }
+          mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
+          openSheet(idx);
+          window.scrollTo({ top: 0, behavior: 'instant' });
         } else {
           openPopup(idx);
         }
@@ -574,7 +552,6 @@ function closePopup() {
 
 // ── Detail sheet ───────────────────────────────────────
 function openSheet(idx) {
-  if (isMobile()) return;
   const v = venues[idx];
   if (!v) return;
   selectedIdx = idx;
@@ -589,7 +566,6 @@ function openSheet(idx) {
     '<div class="sheet-note">' + v.note + '</div>' +
     '<a class="sheet-maps" href="' + mapsUrl + '" target="_blank">Open in Google Maps →</a>';
   document.getElementById('detail-sheet').classList.add('on');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function closeSheet() {
@@ -787,6 +763,8 @@ document.querySelectorAll('.pill[data-filter]').forEach(btn => {
 });
 
 // ── Maps ───────────────────────────────────────────────
+applyLayout();
+
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
 desktopMap = new maplibregl.Map({ container: 'map', style: MAP_STYLE, center: [-77.04, 38.905], zoom: 11 });
