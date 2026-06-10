@@ -163,7 +163,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .sheet-maps { display: inline-flex; align-items: center; gap: 3px; margin-top: 12px; font-size: 12px; font-weight: 600; color: var(--blue); text-decoration: none; }
 .sheet-maps:hover { text-decoration: underline; }
 
-@media (max-width: 680px) {
+@media (max-width: 960px) {
   html, body { overflow: auto; }
   .layout { display: none; }
   #match-strip, #country-strip { position: sticky; top: 0; z-index: 50; }
@@ -300,13 +300,30 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 const SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv';
 const MATCHES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=903992166&single=true&output=csv';
 
+
+// Force correct layout on load and resize
+function applyLayout() {
+  const mobileLayout = document.getElementById('mobile-layout');
+  const desktopLayout = document.querySelector('.layout');
+  const useMobile = window.innerWidth < 960 || ('ontouchstart' in window && window.innerWidth < 1200);
+  if (useMobile) {
+    mobileLayout.style.display = 'flex';
+    desktopLayout.style.display = 'none';
+  } else {
+    mobileLayout.style.display = 'none';
+    desktopLayout.style.display = 'flex';
+  }
+}
+applyLayout();
+window.addEventListener('resize', applyLayout);
+
 // ── State ──────────────────────────────────────────────
 let venues = [], allMatches = [];
 let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
 let venuesLoaded = false;
 let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '';
 let selectedIdx = null;
-const isMobile = () => document.getElementById("mobile-layout").style.display !== "none" && window.getComputedStyle(document.getElementById("mobile-layout")).display !== "none";
+const isMobile = () => window.getComputedStyle(document.getElementById("mobile-layout")).display !== "none";
 
 // ── Zip lookup ─────────────────────────────────────────
 const ZIPS = {
