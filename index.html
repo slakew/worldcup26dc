@@ -215,10 +215,13 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       </div>
       <div class="filter-row">
         <button class="pill on" data-filter="all">All</button>
-        <button class="pill" data-filter="bar">🍺 Bar</button>
-        <button class="pill" data-filter="watchparty">🎉 Watch party</button>
-        <button class="pill" data-filter="outdoor">🌳 Outdoor</button>
-        <button class="pill" data-filter="restaurant">🍽️ Restaurant</button>
+        <select class="cselect" id="type-select" aria-label="Venue type">
+          <option value="all">All types</option>
+          <option value="bar">🍺 Bar</option>
+          <option value="watchparty">🎉 Watch party</option>
+          <option value="outdoor">🌳 Outdoor</option>
+          <option value="restaurant">🍽️ Restaurant</option>
+        </select>
         <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
         <input type="date" class="datepick" id="date-filter" aria-label="Match date" />
       </div>
@@ -231,9 +234,11 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
     <div class="meta">
       <span class="venue-count" id="venue-count">Loading…</span>
       <div class="legend">
-        <div class="leg"><div class="dot" style="background:#D42B2B"></div>All games</div>
-        <div class="leg"><div class="dot" style="background:#1A3A8F"></div>Team bar</div>
-        <div class="leg"><div class="dot" style="background:#F5C800;border-color:#d4cfc0;"></div>Select games</div>
+        <div class="leg"><div class="dot" style="background:#1A3A8F"></div>Bar</div>
+        <div class="leg"><div class="dot" style="background:#D42B2B"></div>Restaurant</div>
+        <div class="leg"><div class="dot" style="background:#2A8B3E"></div>Outdoor</div>
+        <div class="leg"><div class="dot" style="background:#F5C800;border-color:#d4cfc0;"></div>Watch party</div>
+        <div class="leg"><div class="dot" style="background:#9B59B6"></div>Kid-friendly</div>
       </div>
     </div>
     <div id="venue-list"><div class="error-msg" id="error-msg"></div></div>
@@ -264,10 +269,13 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       </div>
       <div class="mob-filters">
         <button class="pill on" data-filter="all">All</button>
-        <button class="pill" data-filter="bar">🍺 Bar</button>
-        <button class="pill" data-filter="watchparty">🎉 Watch party</button>
-        <button class="pill" data-filter="outdoor">🌳 Outdoor</button>
-        <button class="pill" data-filter="restaurant">🍽️ Restaurant</button>
+        <select class="cselect" id="type-select" aria-label="Venue type">
+          <option value="all">All types</option>
+          <option value="bar">🍺 Bar</option>
+          <option value="watchparty">🎉 Watch party</option>
+          <option value="outdoor">🌳 Outdoor</option>
+          <option value="restaurant">🍽️ Restaurant</option>
+        </select>
         <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
 
         <input type="date" class="datepick" id="mobile-date" aria-label="Match date" />
@@ -454,9 +462,12 @@ function filtered() {
 }
 
 function pinColor(v) {
-  if (v.team) return '#1A3A8F';       // blue = team-specific venue
-  if (v.showAllGames) return '#D42B2B'; // red = shows all games
-  return '#F5C800';                    // yellow = select games only
+  const t = (v.type || '').toLowerCase().trim();
+  if (t === 'outdoor' || t === 'outdoor screening' || t === 'park') return '#2A8B3E'; // green = outdoor
+  if (t === 'restaurant') return '#D42B2B';                                            // red = restaurant
+  if (t === 'watch party' || t === 'watchparty') return '#F5C800';                    // yellow = watch party
+  if (v.kidFriendly) return '#9B59B6';                                                // purple = kid-friendly
+  return '#1A3A8F';                                                                    // blue = bar (default)
 }
 
 function mkPin(color, idx, mapType) {
@@ -759,9 +770,22 @@ document.querySelectorAll('.pill[data-filter]').forEach(btn => {
     document.querySelectorAll('.pill[data-filter="' + btn.dataset.filter + '"]').forEach(b => b.classList.add('on'));
     document.querySelectorAll('.pill[data-filter]:not([data-filter="' + btn.dataset.filter + '"])').forEach(b => b.classList.remove('on'));
     activeFilter = btn.dataset.filter;
+    ['type-select','mobile-type-select'].forEach(id => { const el = document.getElementById(id); if (el) el.value = 'all'; });
     closePopup(); closeSheet(); renderMarkers(); renderLists();
   });
 });
+
+function doTypeFilter(val) {
+  activeFilter = val;
+  ['type-select','mobile-type-select'].forEach(id => { const el = document.getElementById(id); if (el) el.value = val; });
+  document.querySelectorAll('.pill[data-filter]').forEach(b => b.classList.remove('on'));
+  if (val === 'all') document.querySelectorAll('.pill[data-filter="all"]').forEach(b => b.classList.add('on'));
+  document.querySelectorAll('.pill[data-filter="kidfriendly"]').forEach(b => b.classList.remove('on'));
+  closePopup(); closeSheet(); renderMarkers(); renderLists();
+}
+
+document.getElementById('type-select').addEventListener('change', e => doTypeFilter(e.target.value));
+document.getElementById('mobile-type-select').addEventListener('change', e => doTypeFilter(e.target.value));
 
 const STYLE  = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const CENTER = [-77.04, 38.905];
