@@ -21,6 +21,13 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 
 /* Match strip */
 #match-strip { background: #1A1A2E; width: 100%; flex-shrink: 0; }
+#country-strip { background: var(--surface); width: 100%; flex-shrink: 0; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; display: none; }
+#country-strip::-webkit-scrollbar { display: none; }
+#country-strip.on { display: flex; align-items: center; }
+.cstrip-inner { display: flex; align-items: center; gap: 5px; padding: 7px 14px; flex-shrink: 0; }
+.cpill { height: 28px; padding: 0 12px; font-size: 12px; font-family: inherit; border: 1px solid var(--line2); border-radius: 6px; background: var(--wash); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.13s; outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+.cpill:hover { background: var(--line); color: var(--ink); }
+.cpill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 #match-strip.hidden { display: none; }
 .strip-inner { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
 .strip-inner::-webkit-scrollbar { display: none; }
@@ -67,6 +74,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
 .datepick.on { background: var(--accent); color: #fff; }
 
 .filter-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink3); }
+.country-pill { font-size: 11px !important; padding: 0 9px !important; height: 26px !important; }
 .active-filter-bar { display: none; align-items: center; justify-content: space-between; padding: 5px 14px; background: #F5C800; border-bottom: 1px solid #e8b800; font-size: 11px; font-weight: 700; color: #1A1A2E; flex-shrink: 0; }
 .active-filter-bar.on { display: flex; }
 .active-filter-clear { background: #1A1A2E; color: #F5C800; border: none; border-radius: 4px; font-size: 10px; font-weight: 700; padding: 2px 8px; cursor: pointer; font-family: inherit; letter-spacing: 0.5px; }
@@ -172,6 +180,32 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
   </div>
 </div>
 
+<div id="country-strip" class="on">
+  <div class="cstrip-inner">
+    <button class="cpill on" data-country="">All</button>
+    <button class="cpill" data-country="🇺🇸 USA">🇺🇸 USA</button>
+    <button class="cpill" data-country="🇲🇽 Mexico">🇲🇽 MEX</button>
+    <button class="cpill" data-country="🇪🇸 Spain">🇪🇸 ESP</button>
+    <button class="cpill" data-country="🇳🇱 Netherlands">🇳🇱 NED</button>
+    <button class="cpill" data-country="🇧🇷 Brazil">🇧🇷 BRA</button>
+    <button class="cpill" data-country="🇩🇪 Germany">🇩🇪 GER</button>
+    <button class="cpill" data-country="🇫🇷 France">🇫🇷 FRA</button>
+    <button class="cpill" data-country="🇦🇷 Argentina">🇦🇷 ARG</button>
+    <button class="cpill" data-country="🇵🇹 Portugal">🇵🇹 POR</button>
+    <button class="cpill" data-country="🇮🇹 Italy">🇮🇹 ITA</button>
+    <button class="cpill" data-country="🇯🇵 Japan">🇯🇵 JPN</button>
+    <button class="cpill" data-country="🇰🇷 South Korea">🇰🇷 KOR</button>
+    <button class="cpill" data-country="🇳🇬 Nigeria">🇳🇬 NGA</button>
+    <button class="cpill" data-country="🇬🇭 Ghana">🇬🇭 GHA</button>
+    <button class="cpill" data-country="🇸🇳 Senegal">🇸🇳 SEN</button>
+    <button class="cpill" data-country="🇨🇴 Colombia">🇨🇴 COL</button>
+    <button class="cpill" data-country="🇨🇷 Croatia">🇨🇷 CRO</button>
+    <button class="cpill" data-country="🇦🇺 Australia">🇦🇺 AUS</button>
+    <button class="cpill" data-country="🇵🇾 Paraguay">🇵🇾 PAR</button>
+    <button class="cpill" data-country="🇹🇷 Turkey">🇹🇷 TUR</button>
+  </div>
+</div>
+
 <div class="layout">
   <div id="sidebar">
     <div class="controls">
@@ -184,30 +218,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
         <button class="pill" data-filter="usa">🇺🇸 USA bars</button>
         <input type="date" class="datepick" id="date-filter" aria-label="Match date" />
       </div>
-      <div class="filter-row" style="flex-wrap:wrap;gap:4px;">
-        <span class="filter-label" style="width:100%;margin-bottom:2px;">Country</span>
-        <button class="pill country-pill" data-country="">All</button>
-        <button class="pill country-pill" data-country="🇺🇸 USA">🇺🇸 USA</button>
-        <button class="pill country-pill" data-country="🇲🇽 Mexico">🇲🇽 MEX</button>
-        <button class="pill country-pill" data-country="🇪🇸 Spain">🇪🇸 ESP</button>
-        <button class="pill country-pill" data-country="🇳🇱 Netherlands">🇳🇱 NED</button>
-        <button class="pill country-pill" data-country="🇧🇷 Brazil">🇧🇷 BRA</button>
-        <button class="pill country-pill" data-country="🇩🇪 Germany">🇩🇪 GER</button>
-        <button class="pill country-pill" data-country="🇫🇷 France">🇫🇷 FRA</button>
-        <button class="pill country-pill" data-country="🇦🇷 Argentina">🇦🇷 ARG</button>
-        <button class="pill country-pill" data-country="🇵🇹 Portugal">🇵🇹 POR</button>
-        <button class="pill country-pill" data-country="🇮🇹 Italy">🇮🇹 ITA</button>
-        <button class="pill country-pill" data-country="🇯🇵 Japan">🇯🇵 JPN</button>
-        <button class="pill country-pill" data-country="🇰🇷 South Korea">🇰🇷 KOR</button>
-        <button class="pill country-pill" data-country="🇳🇬 Nigeria">🇳🇬 NGA</button>
-        <button class="pill country-pill" data-country="🇬🇭 Ghana">🇬🇭 GHA</button>
-        <button class="pill country-pill" data-country="🇸🇳 Senegal">🇸🇳 SEN</button>
-        <button class="pill country-pill" data-country="🇨🇴 Colombia">🇨🇴 COL</button>
-        <button class="pill country-pill" data-country="🇨🇷 Croatia">🇨🇷 CRO</button>
-        <button class="pill country-pill" data-country="🇦🇺 Australia">🇦🇺 AUS</button>
-        <button class="pill country-pill" data-country="🇵🇾 Paraguay">🇵🇾 PAR</button>
-        <button class="pill country-pill" data-country="🇹🇷 Turkey">🇹🇷 TUR</button>
-      </div>
+
     </div>
     <div class="active-filter-bar" id="active-filter-bar">
       <span id="active-filter-text">⚽ Filtering by match</span>
@@ -250,27 +261,7 @@ html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMa
       <div class="mob-filters">
         <button class="pill on" data-filter="all">All venues</button>
         <button class="pill" data-filter="usa">🇺🇸 USA bars</button>
-        <button class="pill mobile-country-pill" data-country="">All</button>
-        <button class="pill mobile-country-pill" data-country="🇺🇸 USA">🇺🇸 USA</button>
-        <button class="pill mobile-country-pill" data-country="🇲🇽 Mexico">🇲🇽 MEX</button>
-        <button class="pill mobile-country-pill" data-country="🇪🇸 Spain">🇪🇸 ESP</button>
-        <button class="pill mobile-country-pill" data-country="🇳🇱 Netherlands">🇳🇱 NED</button>
-        <button class="pill mobile-country-pill" data-country="🇧🇷 Brazil">🇧🇷 BRA</button>
-        <button class="pill mobile-country-pill" data-country="🇩🇪 Germany">🇩🇪 GER</button>
-        <button class="pill mobile-country-pill" data-country="🇫🇷 France">🇫🇷 FRA</button>
-        <button class="pill mobile-country-pill" data-country="🇦🇷 Argentina">🇦🇷 ARG</button>
-        <button class="pill mobile-country-pill" data-country="🇵🇹 Portugal">🇵🇹 POR</button>
-        <button class="pill mobile-country-pill" data-country="🇮🇹 Italy">🇮🇹 ITA</button>
-        <button class="pill mobile-country-pill" data-country="🇯🇵 Japan">🇯🇵 JPN</button>
-        <button class="pill mobile-country-pill" data-country="🇰🇷 South Korea">🇰🇷 KOR</button>
-        <button class="pill mobile-country-pill" data-country="🇳🇬 Nigeria">🇳🇬 NGA</button>
-        <button class="pill mobile-country-pill" data-country="🇬🇭 Ghana">🇬🇭 GHA</button>
-        <button class="pill mobile-country-pill" data-country="🇸🇳 Senegal">🇸🇳 SEN</button>
-        <button class="pill mobile-country-pill" data-country="🇨🇴 Colombia">🇨🇴 COL</button>
-        <button class="pill mobile-country-pill" data-country="🇨🇷 Croatia">🇨🇷 CRO</button>
-        <button class="pill mobile-country-pill" data-country="🇦🇺 Australia">🇦🇺 AUS</button>
-        <button class="pill mobile-country-pill" data-country="🇵🇾 Paraguay">🇵🇾 PAR</button>
-        <button class="pill mobile-country-pill" data-country="🇹🇷 Turkey">🇹🇷 TUR</button>
+
         <input type="date" class="datepick" id="mobile-date" aria-label="Match date" />
       </div>
       <div class="mob-count" id="mobile-count">Loading…</div>
@@ -641,9 +632,11 @@ function updateStrip(forDate) {
 
 function adjustLayout() {
   const strip = document.getElementById('match-strip');
-  const h = strip.classList.contains('hidden') ? 0 : strip.offsetHeight;
+  const cstrip = document.getElementById('country-strip');
+  const h1 = strip.classList.contains('hidden') ? 0 : strip.offsetHeight;
+  const h2 = cstrip ? cstrip.offsetHeight : 0;
   const layout = document.querySelector('.layout');
-  if (layout) layout.style.top = h + 'px';
+  if (layout) layout.style.top = (h1 + h2) + 'px';
 }
 
 async function loadVenues() {
@@ -704,7 +697,7 @@ function doSearch(q) {
 
 function doCountry(val) {
   countryFilter = val;
-  document.querySelectorAll('.country-pill, .mobile-country-pill').forEach(b => {
+  document.querySelectorAll('.cpill').forEach(b => {
     b.classList.toggle('on', b.dataset.country === val);
   });
   closePopup(); closeSheet(); renderMarkers(); renderLists();
@@ -727,18 +720,10 @@ document.getElementById('search-input').addEventListener('input',  e => doSearch
 document.getElementById('mobile-search').addEventListener('input', e => doSearch(e.target.value));
 document.getElementById('search-clear').addEventListener('click',        () => doSearch(''));
 document.getElementById('mobile-search-clear').addEventListener('click', () => doSearch(''));
-document.querySelectorAll('.country-pill').forEach(btn => {
+
+document.querySelectorAll('.cpill').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.country-pill').forEach(b => b.classList.remove('on'));
-    document.querySelectorAll('.mobile-country-pill[data-country="' + btn.dataset.country + '"]').forEach(b => b.classList.add('on'));
-    btn.classList.add('on');
-    doCountry(btn.dataset.country);
-  });
-});
-document.querySelectorAll('.mobile-country-pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.mobile-country-pill').forEach(b => b.classList.remove('on'));
-    document.querySelectorAll('.country-pill[data-country="' + btn.dataset.country + '"]').forEach(b => b.classList.add('on'));
+    document.querySelectorAll('.cpill').forEach(b => b.classList.remove('on'));
     btn.classList.add('on');
     doCountry(btn.dataset.country);
   });
