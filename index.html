@@ -695,7 +695,8 @@ async function loadVenues() {
       type: (r.type||'').toLowerCase().trim(),
       region: (r.region||r.dc_md_va||'').toUpperCase().trim(),
       kidFriendly: (r.kidFriendly||r.kid_friendly||'').toUpperCase() === 'TRUE',
-    }));
+      _inactive: (r.active||'').toUpperCase() === 'FALSE',
+    })).filter(v => !v._inactive);
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('loading-mobile').style.display = 'none';
     renderMarkers(); renderLists(); loadMatches();
