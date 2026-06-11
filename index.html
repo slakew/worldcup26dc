@@ -180,6 +180,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     </div>
   </div>
 
+  <div id="country-strip-desktop" style="background:var(--surface);width:100%;border-bottom:1px solid var(--line);flex-shrink:0;display:none;">
+    <div style="display:flex;flex-wrap:wrap;gap:5px;padding:7px 14px;" id="country-pills-desktop"></div>
+  </div>
+
   <div class="desktop-body">
     <div id="sidebar">
       <div class="controls">
@@ -206,10 +210,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 <input type="date" class="datepick" id="date-filter" />
         </div>
       </div>
-      <div style="padding: 8px 14px 10px; border-bottom: 1px solid var(--line); flex-shrink: 0;">
-        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3);margin-bottom:6px;">Country / Team</div>
-        <div class="cstrip-inner" id="country-pills-desktop"></div>
-      </div>
+
       <div class="active-filter-bar" id="active-filter-bar">
         <span id="active-filter-text"></span>
         <button class="active-filter-clear" id="active-filter-clear">✕ Clear</button>
@@ -272,9 +273,18 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
           <option value="MD">Maryland</option>
           <option value="VA">Virginia</option>
         </select>
-        <select class="cselect" id="mob-country-select">
-          <option value="">Country</option>
-        </select>
+        <div id="mob-country-wrap" style="position:relative;">
+          <button id="mob-country-btn" class="cselect" style="cursor:pointer;text-align:left;min-width:90px;display:flex;align-items:center;justify-content:space-between;gap:4px;">
+            <span id="mob-country-label">Country</span>
+            <span style="font-size:9px;opacity:0.6;">▾</span>
+          </button>
+          <div id="mob-country-dropdown" style="display:none;position:absolute;bottom:calc(100% + 4px);left:0;width:180px;background:var(--surface);border:1px solid var(--line2);border-radius:8px;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.12);overflow:hidden;">
+            <div style="padding:6px 8px;border-bottom:1px solid var(--line);">
+              <input id="mob-country-search" type="text" placeholder="Search country..." style="width:100%;height:26px;padding:0 8px;font-size:11px;border:1px solid var(--line2);border-radius:5px;background:var(--wash);color:var(--ink);outline:none;font-family:inherit;" />
+            </div>
+            <div id="mob-country-list" style="max-height:180px;overflow-y:auto;"></div>
+          </div>
+        </div>
         <select class="cselect" id="mob-type-select">
           <option value="all">Venue type</option>
           <option value="bar">🍺 Bar</option>
@@ -341,10 +351,12 @@ function applyLayout() {
 
 // ── Build country pills ──
 function buildCountryPills() {
-  // Desktop — pills in sidebar
+  // Desktop — full-width strip
   const wrap = document.getElementById('country-pills-desktop');
-  if (wrap) {
+  const dstrip = document.getElementById('country-strip-desktop');
+  if (wrap && COUNTRIES.length) {
     wrap.innerHTML = '';
+    dstrip.style.display = 'block';
     const all = document.createElement('button');
     all.className = 'cpill' + (countryFilter === '' ? ' on' : '');
     all.dataset.country = '';
@@ -359,19 +371,58 @@ function buildCountryPills() {
       btn.onclick = () => doCountry(c.val);
       wrap.appendChild(btn);
     });
+    adjustLayout();
   }
-  // Mobile — dropdown
-  const sel = document.getElementById('mob-country-select');
-  if (sel) {
-    sel.innerHTML = '<option value="">Country</option>';
-    COUNTRIES.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.val;
-      opt.textContent = c.label;
-      sel.appendChild(opt);
-    });
-    sel.addEventListener('change', e => doCountry(e.target.value));
-  }
+
+  // Mobile — searchable custom dropdown
+  buildMobileCountryDropdown();
+}
+
+function buildMobileCountryDropdown() {
+  const list = document.getElementById('mob-country-list');
+  if (!list) return;
+  renderCountryList('');
+
+  const btn = document.getElementById('mob-country-btn');
+  const dropdown = document.getElementById('mob-country-dropdown');
+  const search = document.getElementById('mob-country-search');
+
+  if (btn) btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = dropdown.style.display !== 'none';
+    dropdown.style.display = open ? 'none' : 'block';
+    if (!open) { search.value = ''; renderCountryList(''); setTimeout(() => search.focus(), 50); }
+  });
+
+  if (search) search.addEventListener('input', e => renderCountryList(e.target.value));
+
+  document.addEventListener('click', e => {
+    const wrap = document.getElementById('mob-country-wrap');
+    if (wrap && !wrap.contains(e.target)) dropdown.style.display = 'none';
+  });
+}
+
+function renderCountryList(query) {
+  const list = document.getElementById('mob-country-list');
+  if (!list) return;
+  const q = query.toLowerCase().trim();
+  const items = [{ val: '', label: 'All' }, ...COUNTRIES];
+  const filtered = q ? items.filter(c => c.label.toLowerCase().includes(q) || (c.name && c.name.toLowerCase().includes(q))) : items;
+  list.innerHTML = '';
+  filtered.forEach(c => {
+    const row = document.createElement('div');
+    row.style.cssText = 'padding:7px 12px;font-size:12px;cursor:pointer;color:var(--ink);transition:background 0.1s;' + (c.val === countryFilter ? 'background:var(--accent-bg);color:var(--accent);font-weight:600;' : '');
+    row.textContent = c.label || 'All';
+    row.onmouseenter = () => { if (c.val !== countryFilter) row.style.background = 'var(--wash)'; };
+    row.onmouseleave = () => { if (c.val !== countryFilter) row.style.background = ''; };
+    row.onclick = () => {
+      doCountry(c.val);
+      document.getElementById('mob-country-dropdown').style.display = 'none';
+      const lbl = document.getElementById('mob-country-label');
+      if (lbl) lbl.textContent = c.val ? c.label : 'Country';
+    };
+    list.appendChild(row);
+  });
 }
 
 // ── Helpers ──
@@ -808,8 +859,14 @@ function doSearch(q) {
 function doCountry(val) {
   countryFilter = val;
   document.querySelectorAll('.cpill').forEach(b => b.classList.toggle('on', b.dataset.country === val));
-  const mobSel = document.getElementById('mob-country-select');
-  if (mobSel) mobSel.value = val;
+  const lbl = document.getElementById('mob-country-label');
+  if (lbl) {
+    const found = COUNTRIES.find(c => c.val === val);
+    lbl.textContent = val ? (found ? found.label : val) : 'Country';
+  }
+  const btn = document.getElementById('mob-country-btn');
+  if (btn) btn.style.borderColor = val ? 'var(--accent)' : '';
+  if (btn) btn.style.color = val ? 'var(--accent)' : '';
   if (!val && !regionFilter) {
     const map = isMobile() ? mobileMap : desktopMap;
     if (map) map.flyTo({ center: DC_DEFAULT.center, zoom: DC_DEFAULT.zoom, duration: 600 });
