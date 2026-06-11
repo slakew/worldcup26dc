@@ -603,10 +603,10 @@ function openPopup(idx) {
   const tbadge = v.team ? '<span class="team-badge">'+v.team+'</span>' : '<span style="color:var(--ink3)">No affiliation</span>';
   const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name+' '+v.neighborhood+' Washington DC');
   document.getElementById('popup-body').innerHTML =
+    (v.address ? '<div class="popup-row"><span class="popup-lbl">Address</span><span class="popup-val">'+v.address+'</span></div>' : '')+
     '<div class="popup-row"><span class="popup-lbl">Hours</span><span class="popup-val">'+v.hours+'</span></div>'+
     '<div class="popup-row"><span class="popup-lbl">Games</span><span class="popup-val">'+v.games+'</span></div>'+
     '<div class="popup-row"><span class="popup-lbl">Team</span><span class="popup-val">'+tbadge+'</span></div>'+
-    (v.address ? '<div class="popup-row"><span class="popup-lbl">Address</span><span class="popup-val">'+v.address+'</span></div>' : '')+
     '<div class="popup-hr"></div><div class="popup-note">'+v.note+'</div>'+
     '<a class="popup-maps" href="'+mapsUrl+'" target="_blank">Open in Google Maps →</a>';
   document.getElementById('popup').classList.add('on');
