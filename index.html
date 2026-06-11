@@ -30,14 +30,14 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .strip-teams { font-size: 12px; font-weight: 600; color: #fff; }
 .strip-teams em { color: rgba(255,255,255,0.3); font-style: normal; margin: 0 5px; }
 .strip-time { font-size: 11px; color: rgba(255,255,255,0.4); }
-.strip-channel { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+.strip-channel { font-size: 10px; padding: 1px 7px; border-radius: 3px; background: rgba(245,200,0,0.15); color: rgba(245,200,0,0.8); font-weight: 600; }
 .strip-empty { font-size: 11px; color: rgba(255,255,255,0.35); padding: 9px 16px; cursor: pointer; }
 .strip-empty.active { background: rgba(245,200,0,0.15); }
 
 /* ── Country strip ── */
-#country-strip { background: var(--surface); width: 100%; border-bottom: 1px solid var(--line); display: flex; align-items: center; flex-shrink: 0; }
+
 #country-strip::-webkit-scrollbar { display: none; }
-.cstrip-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 6px 14px; }
+.cstrip-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 0; }
 .cpill { height: 26px; padding: 0 11px; font-size: 11px; font-family: inherit; border: 1px solid var(--line2); border-radius: 6px; background: var(--wash); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.13s; outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
 .cpill:hover { background: var(--line); color: var(--ink); }
 .cpill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -179,9 +179,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
       <div id="strip-items"></div>
     </div>
   </div>
-  <div id="country-strip">
-    <div class="cstrip-inner" id="country-pills-desktop"></div>
-  </div>
+
   <div class="desktop-body">
     <div id="sidebar">
       <div class="controls">
@@ -207,6 +205,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
           </select>
 <input type="date" class="datepick" id="date-filter" />
         </div>
+      </div>
+      <div style="padding: 8px 14px 10px; border-bottom: 1px solid var(--line); flex-shrink: 0;">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--ink3);margin-bottom:6px;">Country / Team</div>
+        <div class="cstrip-inner" id="country-pills-desktop"></div>
       </div>
       <div class="active-filter-bar" id="active-filter-bar">
         <span id="active-filter-text"></span>
@@ -243,9 +245,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
       <div id="strip-items-mob"></div>
     </div>
   </div>
-  <div id="country-strip-mob" style="background:var(--surface);display:flex;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0;flex-wrap:wrap;">
-    <div class="cstrip-inner" id="country-pills-mobile"></div>
-  </div>
+
   <div id="mob-map-wrap">
     <div id="map-mobile"></div>
     <div id="loading-mobile"><div class="spinner"></div><div class="loading-text">Loading…</div></div>
@@ -271,6 +271,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
           <option value="DC">DC</option>
           <option value="MD">Maryland</option>
           <option value="VA">Virginia</option>
+        </select>
+        <select class="cselect" id="mob-country-select">
+          <option value="">Country</option>
         </select>
         <select class="cselect" id="mob-type-select">
           <option value="all">Venue type</option>
@@ -338,10 +341,10 @@ function applyLayout() {
 
 // ── Build country pills ──
 function buildCountryPills() {
-  ['country-pills-desktop','country-pills-mobile'].forEach(id => {
-    const wrap = document.getElementById(id);
-    wrap.innerHTML = ''; // clear existing
-    // Always add All first
+  // Desktop — pills in sidebar
+  const wrap = document.getElementById('country-pills-desktop');
+  if (wrap) {
+    wrap.innerHTML = '';
     const all = document.createElement('button');
     all.className = 'cpill' + (countryFilter === '' ? ' on' : '');
     all.dataset.country = '';
@@ -356,7 +359,19 @@ function buildCountryPills() {
       btn.onclick = () => doCountry(c.val);
       wrap.appendChild(btn);
     });
-  });
+  }
+  // Mobile — dropdown
+  const sel = document.getElementById('mob-country-select');
+  if (sel) {
+    sel.innerHTML = '<option value="">Country</option>';
+    COUNTRIES.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.val;
+      opt.textContent = c.label;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', e => doCountry(e.target.value));
+  }
 }
 
 // ── Helpers ──
@@ -668,7 +683,7 @@ function updateStrip(forDate) {
       const next = allMatches.find(m => m.date > today);
       if (!next) return;
       label.textContent = 'Next game';
-      items.innerHTML = '<div class="strip-empty" data-date="'+next.date+'">⚽ '+next.home+' vs '+next.away+' · '+fmtDate(next.date)+(next.time?' · '+next.time:'')+' — tap to filter</div>';
+      items.innerHTML = '<div class="strip-empty" data-date="'+next.date+'">⚽ '+next.home+' vs '+next.away+' · '+fmtDate(next.date)+(next.time?' · '+next.time:'')+(next.round?' · '+next.round:'')+' — tap to filter</div>';
     } else if (!day.length) {
       label.textContent = fmtDate(target);
       items.innerHTML = '<div class="strip-empty">No matches on this date</div>';
@@ -793,6 +808,8 @@ function doSearch(q) {
 function doCountry(val) {
   countryFilter = val;
   document.querySelectorAll('.cpill').forEach(b => b.classList.toggle('on', b.dataset.country === val));
+  const mobSel = document.getElementById('mob-country-select');
+  if (mobSel) mobSel.value = val;
   if (!val && !regionFilter) {
     const map = isMobile() ? mobileMap : desktopMap;
     if (map) map.flyTo({ center: DC_DEFAULT.center, zoom: DC_DEFAULT.zoom, duration: 600 });
