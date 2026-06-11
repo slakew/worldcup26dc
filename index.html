@@ -35,9 +35,9 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .strip-empty.active { background: rgba(245,200,0,0.15); }
 
 /* ── Country strip ── */
-#country-strip { background: var(--surface); width: 100%; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; display: flex; align-items: center; flex-shrink: 0; }
+#country-strip { background: var(--surface); width: 100%; border-bottom: 1px solid var(--line); display: flex; align-items: center; flex-shrink: 0; }
 #country-strip::-webkit-scrollbar { display: none; }
-.cstrip-inner { display: flex; align-items: center; gap: 5px; padding: 6px 14px; flex-shrink: 0; }
+.cstrip-inner { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 6px 14px; }
 .cpill { height: 26px; padding: 0 11px; font-size: 11px; font-family: inherit; border: 1px solid var(--line2); border-radius: 6px; background: var(--wash); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.13s; outline: none; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
 .cpill:hover { background: var(--line); color: var(--ink); }
 .cpill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -55,7 +55,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .search-input::placeholder { color: var(--ink3); }
 .search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--ink3); font-size: 16px; line-height: 1; display: none; padding: 0; font-family: inherit; }
 .search-clear.on { display: block; }
-.filter-row { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.filter-row { display: flex; gap: 5px; flex-wrap: wrap; align-items: flex-end; }
 .pill { height: 28px; padding: 0 12px; font-size: 12px; font-family: inherit; border: 1px solid var(--line2); border-radius: 6px; background: var(--wash); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.13s; outline: none; -webkit-tap-highlight-color: transparent; }
 .pill:hover { background: var(--line); color: var(--ink); }
 .pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
@@ -138,8 +138,8 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .peek-handle { width: 32px; height: 4px; background: var(--line2); border-radius: 2px; }
 .peek-header { padding: 0 14px 8px; display: flex; align-items: center; justify-content: space-between; }
 .peek-count { font-size: 12px; color: var(--ink3); }
-.peek-filters { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; padding: 0 14px 8px; }
-.peek-filters::-webkit-scrollbar { display: none; }
+.peek-filters { display: flex; gap: 5px; flex-wrap: wrap; padding: 0 14px 8px; }
+
 .peek-filters .pill, .peek-filters .cselect, .peek-filters .datepick { flex-shrink: 0; height: 26px; font-size: 11px; }
 .peek-search { padding: 0 14px 8px; }
 .peek-search .search-input { height: 30px; font-size: 12px; }
@@ -186,20 +186,26 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
     <div id="sidebar">
       <div class="controls">
         <div class="search-wrap">
-          <input class="search-input" id="search-input" type="text" placeholder="Search or enter zip code…" autocomplete="off" />
+          <input class="search-input" id="search-input" type="text" placeholder="Search by venue, neighborhood, or zip…" autocomplete="off" />
           <button class="search-clear" id="search-clear">×</button>
         </div>
         <div class="filter-row">
           <button class="pill on" data-filter="all">All</button>
           <button class="pill" data-filter="kidfriendly">👶 Kid-friendly</button>
           <select class="cselect" id="type-select">
-            <option value="all">All types</option>
+            <option value="all">Venue type</option>
             <option value="bar">🍺 Bar</option>
             <option value="watchparty">🎉 Watch party</option>
             <option value="outdoor">🌳 Outdoor</option>
             <option value="restaurant">🍽️ Restaurant</option>
           </select>
-          <input type="date" class="datepick" id="date-filter" />
+          <select class="cselect" id="region-select" aria-label="Region">
+            <option value="">State</option>
+            <option value="DC">DC</option>
+            <option value="MD">Maryland</option>
+            <option value="VA">Virginia</option>
+          </select>
+<input type="date" class="datepick" id="date-filter" />
         </div>
       </div>
       <div class="active-filter-bar" id="active-filter-bar">
@@ -237,7 +243,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
       <div id="strip-items-mob"></div>
     </div>
   </div>
-  <div id="country-strip-mob" style="background:var(--surface);overflow-x:auto;scrollbar-width:none;display:flex;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0;">
+  <div id="country-strip-mob" style="background:var(--surface);display:flex;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0;flex-wrap:wrap;">
     <div class="cstrip-inner" id="country-pills-mobile"></div>
   </div>
   <div id="mob-map-wrap">
@@ -253,24 +259,27 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
       </div>
       <div class="peek-search">
         <div class="search-wrap">
-          <input class="search-input" id="mob-search" type="text" placeholder="Search or enter zip code…" autocomplete="off" />
+          <input class="search-input" id="mob-search" type="text" placeholder="Search by venue, neighborhood, or zip…" autocomplete="off" />
           <button class="search-clear" id="mob-search-clear">×</button>
         </div>
       </div>
       <div class="peek-filters">
         <button class="pill on" data-filter="all">All</button>
         <button class="pill" data-filter="kidfriendly">👶 Kids</button>
-        <button class="pill" data-region="DC">DC</button>
-        <button class="pill" data-region="MD">MD</button>
-        <button class="pill" data-region="VA">VA</button>
+        <select class="cselect" id="mob-region-select" aria-label="Region">
+          <option value="">State</option>
+          <option value="DC">DC</option>
+          <option value="MD">Maryland</option>
+          <option value="VA">Virginia</option>
+        </select>
         <select class="cselect" id="mob-type-select">
-          <option value="all">All types</option>
+          <option value="all">Venue type</option>
           <option value="bar">🍺 Bar</option>
           <option value="watchparty">🎉 Watch party</option>
           <option value="outdoor">🌳 Outdoor</option>
           <option value="restaurant">🍽️ Restaurant</option>
         </select>
-        <input type="date" class="datepick" id="mob-date" />
+<input type="date" class="datepick" id="mob-date" />
       </div>
       <div class="peek-header">
         <span class="peek-count" id="mob-count">Loading…</span>
@@ -751,7 +760,9 @@ async function loadMatches() {
 // ── Actions ──
 function doRegion(val) {
   regionFilter = val;
-  document.querySelectorAll('.pill[data-region]').forEach(b => b.classList.toggle('on', b.dataset.region === val));
+  ['region-select','mob-region-select'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.value = val; el.classList.toggle('on', val !== ''); }
+  });
   const view = val && REGION_BOUNDS[val] ? REGION_BOUNDS[val] : DC_DEFAULT;
   const map = isMobile() ? mobileMap : desktopMap;
   if (map) map.flyTo({ center: view.center, zoom: view.zoom, duration: 600 });
@@ -828,12 +839,8 @@ document.querySelectorAll('.pill[data-filter]').forEach(btn => {
   });
 });
 
-document.querySelectorAll('.pill[data-region]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const val = regionFilter === btn.dataset.region ? '' : btn.dataset.region;
-    doRegion(val);
-  });
-});
+document.getElementById('region-select').addEventListener('change', e => doRegion(e.target.value));
+document.getElementById('mob-region-select').addEventListener('change', e => doRegion(e.target.value));
 
 // ── Peek strip drag ──
 let peekDragStart = 0, peekExpanded = false;
