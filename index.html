@@ -129,6 +129,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
   z-index: 20;
   transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  transform: translateY(calc(100% - 88px));
+}
+#peek-strip.expanded {
+  transform: translateY(0);
 }
 .peek-handle-row { display: flex; justify-content: center; padding: 8px 0 4px; cursor: pointer; }
 .peek-handle { width: 32px; height: 4px; background: var(--line2); border-radius: 2px; }
@@ -139,7 +143,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .peek-filters .pill, .peek-filters .cselect, .peek-filters .datepick { flex-shrink: 0; height: 26px; font-size: 11px; }
 .peek-search { padding: 0 14px 8px; }
 .peek-search .search-input { height: 30px; font-size: 12px; }
-#mob-venue-list { overflow-y: auto; max-height: 45vh; -webkit-overflow-scrolling: touch; }
+#mob-venue-list { overflow-y: auto; max-height: 50vh; -webkit-overflow-scrolling: touch; }
 
 /* Mobile venue card */
 .mob-card { padding: 11px 14px; border-bottom: 1px solid var(--line); cursor: pointer; transition: background 0.1s; -webkit-tap-highlight-color: transparent; }
@@ -522,10 +526,11 @@ function selectMobile(idx) {
   });
   if (!wasSelected) {
     mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
+    setPeek(true);
     setTimeout(() => {
       const card = document.querySelector('.mob-card[data-idx="'+idx+'"]');
       if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    }, 350);
   }
 }
 
@@ -723,17 +728,23 @@ document.querySelectorAll('.pill[data-filter]').forEach(btn => {
 // ── Peek strip drag ──
 let peekDragStart = 0, peekExpanded = false;
 const peekStrip = document.getElementById('peek-strip');
+
+function setPeek(expanded) {
+  peekExpanded = expanded;
+  peekStrip.classList.toggle('expanded', expanded);
+}
+
 peekStrip.addEventListener('touchstart', e => { peekDragStart = e.touches[0].clientY; }, {passive:true});
 peekStrip.addEventListener('touchend', e => {
   const dy = peekDragStart - e.changedTouches[0].clientY;
-  if (dy > 40 && !peekExpanded) { peekExpanded = true; peekStrip.style.transform = 'translateY(0)'; document.getElementById('mob-venue-list').style.maxHeight = '60vh'; }
-  else if (dy < -40 && peekExpanded) { peekExpanded = false; peekStrip.style.transform = ''; document.getElementById('mob-venue-list').style.maxHeight = '45vh'; }
+  if (dy > 40) setPeek(true);
+  else if (dy < -40) setPeek(false);
 }, {passive:true});
-document.getElementById('peek-handle').addEventListener('click', () => {
-  peekExpanded = !peekExpanded;
-  peekStrip.style.transform = '';
-  document.getElementById('mob-venue-list').style.maxHeight = peekExpanded ? '60vh' : '45vh';
-});
+
+document.getElementById('peek-handle').addEventListener('click', () => setPeek(!peekExpanded));
+
+// Auto-expand when a card is selected, collapse when map is tapped
+mobileMap && mobileMap.on && mobileMap.on('click', () => setPeek(false));
 
 // ── Maps ──
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
