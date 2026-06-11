@@ -524,7 +524,7 @@ function renderMobileList() {
     card.innerHTML =
       '<div class="mob-card-header">'
         +'<div><div class="mob-card-name">'+v.name+'</div>'
-        +'<div class="mob-card-hood">'+v.neighborhood+'</div>'
+        +'<div class="mob-card-hood">'+v.neighborhood+(v.address ? '<br><span style="font-size:10px;color:var(--ink3);">'+v.address+'</span>' : '')+'</div>'
         +'<div class="vc-tags">'+(v.team?'<span class="tag tag-team">'+v.team+'</span>':'<span class="tag tag-all">All teams</span>')+'<span class="tag tag-hours">'+v.hours+'</span></div>'
         +'</div>'
         +'<span class="mob-card-chevron">▾</span>'
@@ -546,7 +546,7 @@ function renderLists() { renderDesktopList(); renderMobileList(); }
 function cardInner(v) {
   const teamTag = v.team ? '<span class="tag tag-team">'+v.team+'</span>' : '<span class="tag tag-all">All teams</span>';
   return '<div class="vc-name">'+v.name+'</div>'
-    +'<div class="vc-hood">'+v.neighborhood+'</div>'
+    +'<div class="vc-hood">'+v.neighborhood+(v.address ? ' · <span style="color:var(--ink3);font-size:10px;">'+v.address+'</span>' : '')+'</div>'
     +'<div class="vc-tags">'+teamTag+'<span class="tag tag-hours">'+v.hours+'</span></div>';
 }
 
@@ -598,7 +598,7 @@ function openPopup(idx) {
   });
   desktopMap && desktopMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
   document.getElementById('popup-name').textContent = v.name;
-  document.getElementById('popup-hood').textContent = v.neighborhood;
+  document.getElementById('popup-hood').textContent = v.neighborhood + (v.address ? ' · ' + v.address : '');
   const tbadge = v.team ? '<span class="team-badge">'+v.team+'</span>' : '<span style="color:var(--ink3)">No affiliation</span>';
   const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.name+' '+v.neighborhood+' Washington DC');
   document.getElementById('popup-body').innerHTML =
@@ -691,6 +691,7 @@ async function loadVenues() {
       hours: r.hours||'', games: r.games||'',
       team: r.team||null, note: r.note||'',
       showAllGames: (r.showAllGames||'').toUpperCase() === 'TRUE',
+      address: r.address || '',
       type: (r.type||'').toLowerCase().trim(),
       region: (r.region||r.dc_md_va||'').toUpperCase().trim(),
       kidFriendly: (r.kidFriendly||r.kid_friendly||'').toUpperCase() === 'TRUE',
