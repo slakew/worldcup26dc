@@ -284,25 +284,39 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 <script>
 const SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=0&single=true&output=csv';
 const MATCHES_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=903992166&single=true&output=csv';
+const TEAMS_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRiZIR6IrxHKBHEEy6NJe0JBy8tz7cXV2i9XmUmzsd_Fb71HxEMnEDLcpCxGy9db-u5QNsUOMZbG-I6/pub?gid=1124379677&single=true&output=csv';
 
-const COUNTRIES = [
-  {val:'',label:'All'},{val:'🇺🇸 USA',label:'🇺🇸 USA'},{val:'🇲🇽 Mexico',label:'🇲🇽 MEX'},{val:'🇨🇦 Canada', label:'🇨🇦CAN'},
-  {val:'🇪🇸 Spain',label:'🇪🇸 ESP'},{val:'🇳🇱 Netherlands',label:'🇳🇱 NED'},{val:'🇧🇷 Brazil',label:'🇧🇷 BRA'},
-  {val:'🇩🇪 Germany',label:'🇩🇪 GER'},{val:'🇫🇷 France',label:'🇫🇷 FRA'},{val:'🇦🇷 Argentina',label:'🇦🇷 ARG'},
-  {val:'🇵🇹 Portugal',label:'🇵🇹 POR'},{val:'🇮🇹 Italy',label:'🇮🇹 ITA'},{val:'🇯🇵 Japan',label:'🇯🇵 JPN'},
-  {val:'🇰🇷 South Korea',label:'🇰🇷 KOR'},{val:'🇳🇬 Nigeria',label:'🇳🇬 NGA'},{val:'🇬🇭 Ghana',label:'🇬🇭 GHA'},
-  {val:'🇸🇳 Senegal',label:'🇸🇳 SEN'},{val:'🇨🇴 Colombia',label:'🇨🇴 COL'},{val:'🇨🇷 Croatia',label:'🇨🇷 CRO'},
-  {val:'🇦🇺 Australia',label:'🇦🇺 AUS'},{val:'🇵🇾 Paraguay',label:'🇵🇾 PAR'},{val:'🇹🇷 Turkey',label:'🇹🇷 TUR'},{val:'🇮🇷 Iran',label:'🇮🇷 IR'},{val:'🇲🇦 Morocco',label:'🇲🇦 MOR'}
-];
+let COUNTRIES = []; // loaded from sheet
 
 // ── State ──
-let venues = [], allMatches = [];
+let venues = [], allMatches = [], allTeams = [];
 let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
 let venuesLoaded = false;
 let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '', regionFilter = '';
 let selectedIdx = null;
 let _isMobile = false;
 const isMobile = () => _isMobile;
+
+// ── Load teams from sheet ──
+async function loadTeams() {
+  try {
+    const res = await fetch(TEAMS_URL);
+    if (!res.ok) return;
+    const rows = parseCSV(await res.text());
+    allTeams = rows.map(r => {
+      const name = (r['Country Name'] || r['country name'] || r.name || '').trim();
+      const code = (r['Country code'] || r['country code'] || r.code || '').trim();
+      const flag = (r['Emoji Flag'] || r['emoji flag'] || r.flag || '').trim();
+      return { name, code, flag };
+    }).filter(t => t.name && t.name !== '#N/A' && t.flag && t.flag !== '#N/A' && t.code && t.code !== '#N/A');
+    // val matches venues team column format: "🇺🇸 USA" using code as short name
+    COUNTRIES = allTeams.map(t => ({ val: t.flag + ' ' + t.code, label: t.flag + ' ' + t.code, name: t.name }));
+    buildCountryPills();
+  } catch(e) {
+    console.warn('Teams load failed:', e);
+    buildCountryPills();
+  }
+}
 
 // ── Layout detection ──
 function applyLayout() {
@@ -317,9 +331,17 @@ function applyLayout() {
 function buildCountryPills() {
   ['country-pills-desktop','country-pills-mobile'].forEach(id => {
     const wrap = document.getElementById(id);
+    wrap.innerHTML = ''; // clear existing
+    // Always add All first
+    const all = document.createElement('button');
+    all.className = 'cpill' + (countryFilter === '' ? ' on' : '');
+    all.dataset.country = '';
+    all.textContent = 'All';
+    all.onclick = () => doCountry('');
+    wrap.appendChild(all);
     COUNTRIES.forEach(c => {
       const btn = document.createElement('button');
-      btn.className = 'cpill' + (c.val === '' ? ' on' : '');
+      btn.className = 'cpill' + (c.val === countryFilter ? ' on' : '');
       btn.dataset.country = c.val;
       btn.textContent = c.label;
       btn.onclick = () => doCountry(c.val);
@@ -564,23 +586,23 @@ function selectMobile(idx) {
   if (!v) return;
   const wasSelected = selectedIdx === idx;
   selectedIdx = wasSelected ? null : idx;
-  document.querySelectorAll('.mob-card').forEach(c => {
-    const isThis = +c.dataset.idx === idx && !wasSelected;
-    c.classList.toggle('on', isThis);
-  });
+  document.querySelectorAll('.mob-card').forEach(c => c.classList.toggle('on', +c.dataset.idx === idx && !wasSelected));
   mMarkers.forEach(m => {
-    const wrap = m.getElement();
-    const el = wrap.firstChild;
+    const wrap = m.getElement(); const el = wrap.firstChild;
     const is = +wrap.dataset.idx === idx && !wasSelected;
     if (el) el.style.transform = is ? 'scale(1.5)' : 'scale(1)';
     wrap.style.zIndex = is ? '10' : '1';
   });
   if (!wasSelected) {
-    mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat], zoom: 14, duration: 500 });
+    const peekH = document.getElementById('peek-strip').offsetHeight || 96;
+    const mapH  = document.getElementById('mob-map-wrap').offsetHeight || 300;
+    const latOffset = (peekH / mapH / 2) * 0.05;
+    mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat + latOffset], zoom: 14, duration: 500 });
     setPeek(true);
     setTimeout(() => {
+      const list = document.getElementById('mob-venue-list');
       const card = document.querySelector('.mob-card[data-idx="'+idx+'"]');
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (card && list) { list.insertBefore(card, list.firstChild); list.scrollTop = 0; }
     }, 350);
   }
 }
@@ -837,7 +859,7 @@ mobileMap && mobileMap.on && mobileMap.on('click', () => setPeek(false));
 // ── Maps ──
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 
-buildCountryPills();
+loadTeams();
 applyLayout();
 window.addEventListener('resize', () => { applyLayout(); renderMarkers(); renderLists(); });
 
