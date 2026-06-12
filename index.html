@@ -73,6 +73,11 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .venue-card:last-child { border-bottom: none; }
 .venue-card:hover { background: var(--wash); }
 .venue-card.on { border-left-color: var(--accent); background: var(--accent-bg); }
+.venue-card.is-event { border-left-color: #534AB7; }
+.venue-card.is-event.on { border-left-color: #534AB7; background: #EEEDFE; }
+.tag-series { background: #EEEDFE; color: #3C3489; }
+.tag-free-event { background: #EAF3DE; color: #27500A; }
+.tag-ticketed-event { background: #FCEBEB; color: #791F1F; }
 .vc-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
 .vc-hood { font-size: 11px; color: var(--ink3); margin-bottom: 5px; }
 .vc-tags { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -501,6 +506,7 @@ function filtered() {
   else if (activeFilter === 'outdoor')     base = base.filter(v => ['outdoor','outdoor screening','park'].includes(v.type));
   else if (activeFilter === 'restaurant')  base = base.filter(v => v.type === 'restaurant');
   else if (activeFilter === 'kidfriendly') base = base.filter(v => v.kidFriendly === true);
+  else if (activeFilter === 'event') base = base.filter(v => v.isEvent === true);
 
   if (countryFilter) {
     const cf = stripFlags(countryFilter).toLowerCase().trim();
@@ -549,6 +555,7 @@ function filtered() {
 
 // ── Pin color ──
 function pinColor(v) {
+  if (v.isEvent) return '#534AB7';
   const t = (v.type||'').toLowerCase().trim();
   if (['outdoor','outdoor screening','park'].includes(t)) return '#2A8B3E';
   if (t === 'restaurant')                                  return '#D42B2B';
@@ -631,8 +638,11 @@ function renderMobileList() {
         +'<div class="mob-detail-row"><span class="mob-detail-lbl">Hours</span><span class="mob-detail-val">'+v.hours+'</span></div>'
         +'<div class="mob-detail-row"><span class="mob-detail-lbl">Games</span><span class="mob-detail-val">'+v.games+'</span></div>'
         +'<div class="mob-detail-row"><span class="mob-detail-lbl">Team</span><span class="mob-detail-val">'+tbadge+'</span></div>'
+        +(v.organizer ? '<div class="mob-detail-row"><span class="mob-detail-lbl">Organizer</span><span class="mob-detail-val">'+v.organizer+'</span></div>' : '')
+        +(v.admission ? '<div class="mob-detail-row"><span class="mob-detail-lbl">Admission</span><span class="mob-detail-val">'+v.admission+'</span></div>' : '')
         +'<div class="mob-detail-note">'+v.note+'</div>'
         +'<a class="mob-maps-btn" href="'+mapsUrl+'" target="_blank">📍 Open in Google Maps</a>'
+        +(v.ticketUrl ? '<a class="mob-maps-btn" href="'+v.ticketUrl+'" target="_blank" style="background:'+(v.ticketed?'var(--accent)':'#3B6D11')+';margin-top:6px;">'+(v.ticketed?'🎟 Get tickets':'🆓 Register free')+'</a>' : '')
       +'</div>';
     card.onclick = () => selectMobile(idx);
     ml.appendChild(card);
@@ -643,9 +653,11 @@ function renderLists() { renderDesktopList(); renderMobileList(); }
 
 function cardInner(v) {
   const teamTag = v.team ? '<span class="tag tag-team">'+v.team+'</span>' : '<span class="tag tag-all">All teams</span>';
+  const seriesTag = v.seriesName ? '<span class="tag tag-series">'+v.seriesName+'</span>' : '';
+  const admissionTag = v.isEvent && v.admission ? (v.ticketed ? '<span class="tag tag-ticketed-event">'+v.admission+'</span>' : '<span class="tag tag-free-event">'+v.admission+'</span>') : '';
   return '<div class="vc-name">'+v.name+'</div>'
     +'<div class="vc-hood">'+v.neighborhood+'</div>'
-    +'<div class="vc-tags">'+teamTag+'<span class="tag tag-hours">'+v.hours+'</span></div>';
+    +'<div class="vc-tags">'+teamTag+seriesTag+admissionTag+'<span class="tag tag-hours">'+v.hours+'</span></div>';
 }
 
 function emptyHtml() {
@@ -704,8 +716,11 @@ function openPopup(idx) {
     '<div class="popup-row"><span class="popup-lbl">Hours</span><span class="popup-val">'+v.hours+'</span></div>'+
     '<div class="popup-row"><span class="popup-lbl">Games</span><span class="popup-val">'+v.games+'</span></div>'+
     '<div class="popup-row"><span class="popup-lbl">Team</span><span class="popup-val">'+tbadge+'</span></div>'+
+    (v.organizer ? '<div class="popup-row"><span class="popup-lbl">Organizer</span><span class="popup-val">'+v.organizer+'</span></div>' : '')+
+    (v.admission ? '<div class="popup-row"><span class="popup-lbl">Admission</span><span class="popup-val">'+v.admission+'</span></div>' : '')+
     '<div class="popup-hr"></div><div class="popup-note">'+v.note+'</div>'+
-    '<a class="popup-maps" href="'+mapsUrl+'" target="_blank">Open in Google Maps →</a>';
+    '<a class="popup-maps" href="'+mapsUrl+'" target="_blank">Open in Google Maps →</a>'+
+    (v.ticketUrl ? '<a class="popup-maps" href="'+v.ticketUrl+'" target="_blank" style="margin-left:12px;color:'+(v.ticketed?'var(--accent)':'#27500A')+'">'+(v.ticketed?'🎟 Get tickets →':'🆓 Register free →')+'</a>' : '');
   document.getElementById('popup').classList.add('on');
   const card = document.querySelector('#venue-list .venue-card[data-idx="'+idx+'"]');
   if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest' });
@@ -793,6 +808,12 @@ async function loadVenues() {
       address: r.address || '',
       type: (r.type||'').toLowerCase().trim(),
       region: (r.region||r.dc_md_va||'').toUpperCase().trim(),
+      isEvent:    (r.isEvent||r.is_event||'').toUpperCase() === 'TRUE',
+      organizer:  r.organizer || '',
+      seriesName: r.seriesName || r.series_name || '',
+      ticketed:   (r.ticketed||'').toUpperCase() === 'TRUE',
+      admission:  r.admission || '',
+      ticketUrl:  r.ticket_url || r.ticketUrl || '',
       kidFriendly: (r.kidFriendly||r.kid_friendly||'').toUpperCase() === 'TRUE',
       _inactive: (r.active||'').toUpperCase() === 'FALSE',
     })).filter(v => !v._inactive);
