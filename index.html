@@ -31,7 +31,15 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .strip-teams em { color: rgba(255,255,255,0.3); font-style: normal; margin: 0 5px; }
 .strip-time { font-size: 11px; color: rgba(255,255,255,0.4); }
 .strip-channel { font-size: 10px; padding: 1px 7px; border-radius: 3px; background: rgba(245,200,0,0.15); color: rgba(245,200,0,0.8); font-weight: 600; }
-.strip-empty { font-size: 11px; color: rgba(255,255,255,0.35); padding: 9px 16px; cursor: pointer; }
+.strip-empty { font-size: 11px; color: rgba(255,255,255,0.35); padding: 9px 16px; cursor: pointer; white-space: nowrap; }
+@media (max-width: 960px) {
+  .strip-match { padding: 7px 12px; gap: 6px; }
+  .strip-teams { font-size: 11px; }
+  .strip-time { display: none; }
+  .strip-channel { display: none; }
+  .strip-label { font-size: 8px; padding: 7px 10px; }
+  .strip-empty { font-size: 10px; padding: 7px 12px; }
+}
 .strip-empty.active { background: rgba(245,200,0,0.15); }
 
 /* ── Country strip ── */
@@ -589,15 +597,26 @@ function mkPin(color, idx) {
 }
 
 // ── Render markers ──
-function renderMarkers() {
+function renderMarkers(fitMap) {
   dMarkers.forEach(m => m.remove()); dMarkers = [];
   mMarkers.forEach(m => m.remove()); mMarkers = [];
-  filtered().forEach(v => {
+  const f = filtered();
+  f.forEach(v => {
     const idx = venues.indexOf(v);
     const c = pinColor(v);
     if (desktopMap) dMarkers.push(new maplibregl.Marker({element:mkPin(c,idx),anchor:'center'}).setLngLat([v.lng,v.lat]).addTo(desktopMap));
     if (mobileMap)  mMarkers.push(new maplibregl.Marker({element:mkPin(c,idx),anchor:'center'}).setLngLat([v.lng,v.lat]).addTo(mobileMap));
   });
+  // Auto-fit map to show all filtered venues (like Google Maps)
+  if (fitMap && f.length > 0) {
+    const lngs = f.map(v => v.lng), lats = f.map(v => v.lat);
+    const bounds = [
+      [Math.min(...lngs) - 0.01, Math.min(...lats) - 0.01],
+      [Math.max(...lngs) + 0.01, Math.max(...lats) + 0.01]
+    ];
+    const map = isMobile() ? mobileMap : desktopMap;
+    if (map) map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 600 });
+  }
 }
 
 // ── Render desktop list ──
@@ -783,10 +802,20 @@ function updateStrip(forDate) {
     setTimeout(() => {
       items.querySelectorAll('[data-date]').forEach(el => {
         el.onclick = () => {
-          const d = el.dataset.date;
           const was = el.classList.contains('active');
-          items.querySelectorAll('[data-date]').forEach(e => e.classList.remove('active'));
-          if (was) doDate(''); else { el.classList.add('active'); doDate(d); }
+          // Clear all
+          items.querySelectorAll('[data-date]').forEach(e => {
+            e.classList.remove('active');
+            e.style.display = '';
+          });
+          if (was) {
+            doDate('');
+          } else {
+            el.classList.add('active');
+            // Hide other matches on same date
+            items.querySelectorAll('[data-date]:not(.active)').forEach(e => e.style.display = 'none');
+            doDate(el.dataset.date);
+          }
         };
       });
     }, 0);
@@ -871,7 +900,7 @@ function doRegion(val) {
   const view = val && REGION_BOUNDS[val] ? REGION_BOUNDS[val] : DC_DEFAULT;
   const map = isMobile() ? mobileMap : desktopMap;
   if (map) map.flyTo({ center: view.center, zoom: view.zoom, duration: 600 });
-  closePopup(); renderMarkers(); renderLists();
+  closePopup(); renderMarkers(true); renderLists();
 }
 
 function doSearch(q) {
@@ -892,7 +921,7 @@ function doSearch(q) {
     const map = isMobile() ? mobileMap : desktopMap;
     if (map) map.flyTo({ center: DC_DEFAULT.center, zoom: DC_DEFAULT.zoom, duration: 600 });
   }
-  closePopup(); renderMarkers(); renderLists();
+  closePopup(); renderMarkers(true); renderLists();
 }
 
 function doCountry(val) {
@@ -910,7 +939,7 @@ function doCountry(val) {
     const map = isMobile() ? mobileMap : desktopMap;
     if (map) map.flyTo({ center: DC_DEFAULT.center, zoom: DC_DEFAULT.zoom, duration: 600 });
   }
-  closePopup(); renderMarkers(); renderLists();
+  closePopup(); renderMarkers(true); renderLists();
 }
 
 function doDate(val) {
@@ -918,7 +947,7 @@ function doDate(val) {
   ['date-filter','mob-date'].forEach(id => { const el = document.getElementById(id); if(el) { el.value=val; el.classList.toggle('on', val!==''); }});
   if (val) updateStrip(val); else updateStrip();
   updateActiveBar();
-  closePopup(); renderMarkers(); renderLists();
+  closePopup(); renderMarkers(true); renderLists();
 }
 
 function doType(val) {
