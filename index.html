@@ -335,6 +335,7 @@ let venues = [], allMatches = [], allTeams = [];
 let desktopMap, mobileMap, dMarkers = [], mMarkers = [];
 let venuesLoaded = false;
 let activeFilter = 'all', countryFilter = '', dateFilter = '', searchQuery = '', regionFilter = '';
+let matchFilter = null; // { home, away } for specific match filtering
 let selectedIdx = null;
 let _isMobile = false;
 const isMobile = () => _isMobile;
@@ -531,11 +532,13 @@ function filtered() {
   }
 
   if (dateFilter) {
-    const dayMatches = allMatches.filter(m => m.date === dateFilter);
-    if (dayMatches.length) {
-      const dayTeams = dayMatches.flatMap(m => [m.home, m.away]).map(t => stripFlags(t).toLowerCase().trim());
-      const teamV    = base.filter(v => v.team && dayTeams.some(t => stripFlags(v.team).toLowerCase().includes(t)));
-      const allV     = base.filter(v => v.showAllGames && !(v.team && dayTeams.some(t => stripFlags(v.team).toLowerCase().includes(t))));
+    // If a specific match is selected use only those two teams, else use all teams playing that day
+    const teamsToMatch = matchFilter
+      ? [matchFilter.home, matchFilter.away].map(t => stripFlags(t).toLowerCase().trim())
+      : allMatches.filter(m => m.date === dateFilter).flatMap(m => [m.home, m.away]).map(t => stripFlags(t).toLowerCase().trim());
+    if (teamsToMatch.length) {
+      const teamV = base.filter(v => v.team && teamsToMatch.some(t => stripFlags(v.team).toLowerCase().includes(t)));
+      const allV  = base.filter(v => v.showAllGames && !(v.team && teamsToMatch.some(t => stripFlags(v.team).toLowerCase().includes(t))));
       base = [...teamV, ...allV];
     }
   }
@@ -803,17 +806,20 @@ function updateStrip(forDate) {
       items.querySelectorAll('[data-date]').forEach(el => {
         el.onclick = () => {
           const was = el.classList.contains('active');
-          // Clear all
           items.querySelectorAll('[data-date]').forEach(e => {
             e.classList.remove('active');
             e.style.display = '';
           });
           if (was) {
+            matchFilter = null;
             doDate('');
           } else {
             el.classList.add('active');
-            // Hide other matches on same date
             items.querySelectorAll('[data-date]:not(.active)').forEach(e => e.style.display = 'none');
+            // Set specific match filter
+            matchFilter = el.dataset.home && el.dataset.away
+              ? { home: decodeURIComponent(el.dataset.home), away: decodeURIComponent(el.dataset.away) }
+              : null;
             doDate(el.dataset.date);
           }
         };
@@ -829,8 +835,9 @@ function updateActiveBar() {
     const el = document.getElementById(id); if (el) el.classList.toggle('on', show);
   });
   if (show) {
-    const matches = allMatches.filter(m => m.date === dateFilter);
-    const label = matches.length ? '⚽ '+matches.map(m => stripFlags(m.home)+' vs '+stripFlags(m.away)).join(' · ') : '⚽ '+dateFilter;
+    const label = matchFilter
+      ? '⚽ ' + stripFlags(matchFilter.home) + ' vs ' + stripFlags(matchFilter.away)
+      : (() => { const matches = allMatches.filter(m => m.date === dateFilter); return matches.length ? '⚽ '+matches.map(m => stripFlags(m.home)+' vs '+stripFlags(m.away)).join(' · ') : '⚽ '+dateFilter; })();
     ['active-filter-text','mob-active-text'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = label; });
   }
 }
@@ -943,6 +950,7 @@ function doCountry(val) {
 }
 
 function doDate(val) {
+  if (!val) matchFilter = null;
   dateFilter = val;
   ['date-filter','mob-date'].forEach(id => { const el = document.getElementById(id); if(el) { el.value=val; el.classList.toggle('on', val!==''); }});
   if (val) updateStrip(val); else updateStrip();
