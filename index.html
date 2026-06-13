@@ -574,22 +574,19 @@ function filtered() {
 }
 
 // ── Pin color ──
-function pinColor(v) {
-  if (v.isEvent) return '#534AB7';
-  const t = (v.type||'').toLowerCase().trim();
-  if (['outdoor','outdoor screening','park'].includes(t)) return '#2A8B3E';
-  if (t === 'restaurant')                                  return '#D42B2B';
-  if (['watch party','watchparty'].includes(t))            return '#F5C800';
-  if (v.kidFriendly)                                       return '#9B59B6';
-  return '#1A3A8F';
+function pinColor(v, isSelected) {
+  if (isSelected) return '#D42B2B'; // selected = red
+  return '#1A3A8F';                 // all others = navy
 }
 
-function mkPin(color, idx) {
+function mkPin(idx, isSelected) {
+  const color = pinColor(null, isSelected);
+  const size = isSelected ? '16px' : '12px';
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+  wrap.style.cssText = 'width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;';
   wrap.dataset.idx = idx;
   const el = document.createElement('div');
-  el.style.cssText = 'width:14px;height:14px;border-radius:50%;background:'+color+';border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.28);transition:transform 0.15s;transform-origin:center center;pointer-events:none;';
+  el.style.cssText = 'width:'+size+';height:'+size+';border-radius:50%;background:'+color+';border:2.5px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,0.28);transition:all 0.15s;transform-origin:center center;pointer-events:none;';
   wrap.appendChild(el);
   wrap.onmouseenter = () => { if (selectedIdx !== idx) el.style.transform = 'scale(1.3)'; };
   wrap.onmouseleave = () => { if (selectedIdx !== idx) el.style.transform = 'scale(1)'; };
@@ -608,9 +605,9 @@ function renderMarkers(fitMap) {
   const f = filtered();
   f.forEach(v => {
     const idx = venues.indexOf(v);
-    const c = pinColor(v);
-    if (desktopMap) dMarkers.push(new maplibregl.Marker({element:mkPin(c,idx),anchor:'center'}).setLngLat([v.lng,v.lat]).addTo(desktopMap));
-    if (mobileMap)  mMarkers.push(new maplibregl.Marker({element:mkPin(c,idx),anchor:'center'}).setLngLat([v.lng,v.lat]).addTo(mobileMap));
+    const isSel = selectedIdx === idx;
+    if (desktopMap) dMarkers.push(new maplibregl.Marker({element:mkPin(idx, isSel),anchor:'center'}).setLngLat([v.lng,v.lat]).addTo(desktopMap));
+    if (mobileMap)  mMarkers.push(new maplibregl.Marker({element:mkPin(idx, isSel),anchor:'center'}).setLngLat([v.lng,v.lat]).addTo(mobileMap));
   });
   // Auto-fit map to show all filtered venues (like Google Maps)
   if (fitMap && f.length > 0) {
@@ -724,7 +721,8 @@ function selectMobile(idx) {
     const offsetPx = peekH + visibleMapH * 0.25;
     const latPerPx = (0.0001 * (14 - 10 + 1));
     const latOffset = (offsetPx / mapH) * latPerPx * 80;
-    mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat - latOffset], zoom: 14, duration: 500 });
+    renderMarkers();
+  mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat - latOffset], zoom: 14, duration: 500 });
     setPeek(true);
     setTimeout(() => {
       const list = document.getElementById('mob-venue-list');
@@ -770,7 +768,7 @@ function closePopup() {
   selectedIdx = null;
   document.getElementById('popup').classList.remove('on');
   document.querySelectorAll('.venue-card').forEach(c => c.classList.remove('on'));
-  dMarkers.forEach(m => { const wrap = m.getElement(); const el = wrap.firstChild; if (el) el.style.transform = 'scale(1)'; wrap.style.zIndex = '1'; });
+  renderMarkers();
 }
 
 // ── Match strip ──
@@ -873,7 +871,7 @@ async function loadVenues() {
     })).filter(v => !v._inactive);
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('loading-mobile').style.display = 'none';
-    renderMarkers(); renderLists(); loadMatches();
+    renderMarkers(true); renderLists(); loadMatches();
   } catch(e) {
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('loading-mobile').style.display = 'none';
@@ -1030,7 +1028,9 @@ desktopMap.on('load', loadVenues);
 mobileMap = new maplibregl.Map({ container:'map-mobile', style:MAP_STYLE, center:DC_DEFAULT.center, zoom:DC_DEFAULT.zoom });
 mobileMap.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-right');
 mobileMap.touchZoomRotate.disableRotation();
-mobileMap.on('load', loadVenues);
+mobileMap.on('load', () => {
+  loadVenues();
+});
 </script>
 </body>
 </html>
