@@ -40,7 +40,10 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   .strip-channel { display: none; }
   .strip-label { font-size: 8px; padding: 6px 10px; letter-spacing: 1px; }
   .strip-empty { font-size: 10px; padding: 6px 10px; }
-  #match-strip-mob .strip-inner { overflow-x: auto; }
+  #match-strip-mob .strip-inner { overflow-x: auto; flex-wrap: nowrap; }
+  #strip-items-mob { display: flex; flex-wrap: nowrap; overflow-x: auto; }
+  #strip-items-mob .strip-match { flex-shrink: 0; }
+  #strip-items-mob .strip-empty { white-space: nowrap; flex-shrink: 0; }
 }
 .strip-empty.active { background: rgba(245,200,0,0.15); }
 
@@ -613,11 +616,18 @@ function renderMarkers(fitMap) {
   if (fitMap && f.length > 0) {
     const lngs = f.map(v => v.lng), lats = f.map(v => v.lat);
     const bounds = [
-      [Math.min(...lngs) - 0.01, Math.min(...lats) - 0.01],
-      [Math.max(...lngs) + 0.01, Math.max(...lats) + 0.01]
+      [Math.min(...lngs) - 0.02, Math.min(...lats) - 0.02],
+      [Math.max(...lngs) + 0.02, Math.max(...lats) + 0.02]
     ];
     const map = isMobile() ? mobileMap : desktopMap;
-    if (map) map.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 600 });
+    if (map) {
+      const peekEl = document.getElementById('peek-strip');
+      const peekH = peekEl ? peekEl.offsetHeight : 120;
+      const padding = isMobile()
+        ? { top: 40, bottom: peekH + 20, left: 30, right: 30 }
+        : { top: 60, bottom: 60, left: 60, right: 60 };
+      map.fitBounds(bounds, { padding, maxZoom: 12, duration: 600 });
+    }
   }
 }
 
