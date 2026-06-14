@@ -519,6 +519,25 @@ function fmtDate(d) {
   return isNaN(dt) ? d : dt.toLocaleDateString('en-US', {weekday:'short',month:'short',day:'numeric'});
 }
 
+// Parse a time string like "3:00 PM ET" into minutes-since-midnight (ET)
+function matchTimeMinutes(timeStr) {
+  const m = (timeStr||'').match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  const ampm = m[3].toUpperCase();
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h * 60 + min;
+}
+
+// Current time in ET, as minutes-since-midnight
+function nowETMinutes() {
+  const etStr = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false, hour: '2-digit', minute: '2-digit' });
+  const [h, m] = etStr.split(':').map(Number);
+  return h * 60 + m;
+}
+
 // ── Filter ──
 function filtered() {
   let base = venues;
@@ -537,13 +556,18 @@ function filtered() {
   }
 
   if (dateFilter) {
-    // If a specific match is selected use only those two teams, else use all teams playing that day
+    // If a specific match is selected use only those two teams + that exact date, else use all teams playing that day
     const teamsToMatch = matchFilter
       ? [matchFilter.home, matchFilter.away].map(t => stripFlags(t).toLowerCase().trim())
       : allMatches.filter(m => m.date === dateFilter).flatMap(m => [m.home, m.away]).map(t => stripFlags(t).toLowerCase().trim());
+    const targetDate = matchFilter ? matchFilter.date : dateFilter;
     if (teamsToMatch.length) {
-      const teamV = base.filter(v => v.team && teamsToMatch.some(t => stripFlags(v.team).toLowerCase().includes(t)));
-      const allV  = base.filter(v => v.showAllGames && !(v.team && teamsToMatch.some(t => stripFlags(v.team).toLowerCase().includes(t))));
+      // A venue "matches" if its team matches AND (it has no specific dates list, or the target date is in its dates list)
+      const teamMatches = v => v.team && teamsToMatch.some(t => stripFlags(v.team).toLowerCase().includes(t));
+      const dateOk = v => !v.dates.length || v.dates.includes(targetDate);
+      const isMatch = v => teamMatches(v) && dateOk(v);
+      const teamV = base.filter(isMatch);
+      const allV  = base.filter(v => v.showAllGames && !isMatch(v));
       base = [...teamV, ...allV];
     }
   }
@@ -614,7 +638,17 @@ function renderMarkers(fitMap) {
   });
   // Auto-fit map to show all filtered venues (like Google Maps)
   if (fitMap && f.length > 0) {
-    const lngs = f.map(v => v.lng), lats = f.map(v => v.lat);
+    // Exclude far-flung outliers (e.g. Tysons VA) from the bounds calc so the
+    // DC core doesn't get zoomed out to fit a single distant venue.
+    let core = f;
+    if (f.length > 1) {
+      const medLat = median(f.map(v => v.lat));
+      const medLng = median(f.map(v => v.lng));
+      // ~0.08 deg ≈ 8-9km — generous enough for DC + close-in VA/MD, excludes Tysons-distance outliers
+      const within = f.filter(v => Math.abs(v.lat - medLat) <= 0.08 && Math.abs(v.lng - medLng) <= 0.08);
+      if (within.length > 0) core = within;
+    }
+    const lngs = core.map(v => v.lng), lats = core.map(v => v.lat);
     const bounds = [
       [Math.min(...lngs) - 0.02, Math.min(...lats) - 0.02],
       [Math.max(...lngs) + 0.02, Math.max(...lats) + 0.02]
@@ -629,6 +663,12 @@ function renderMarkers(fitMap) {
       map.fitBounds(bounds, { padding, maxZoom: 12, duration: 600 });
     }
   }
+}
+
+function median(arr) {
+  const sorted = [...arr].sort((a,b) => a-b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid-1] + sorted[mid]) / 2;
 }
 
 // ── Render desktop list ──
@@ -785,7 +825,19 @@ function closePopup() {
 function updateStrip(forDate) {
   const today = new Date().toISOString().split('T')[0];
   const target = forDate || today;
-  const day = allMatches.filter(m => m.date === target);
+  const nowMin = nowETMinutes();
+
+  // Matches that are still upcoming: future dates entirely, or today's games whose kickoff hasn't passed
+  const upcoming = allMatches.filter(m => {
+    if (m.date > today) return true;
+    if (m.date === today) {
+      const mm = matchTimeMinutes(m.time);
+      return mm === null || mm >= nowMin;
+    }
+    return false;
+  });
+
+  const day = upcoming.filter(m => m.date === target);
 
   ['', '-mob'].forEach(suffix => {
     const label = document.getElementById('strip-label'+suffix);
@@ -794,7 +846,7 @@ function updateStrip(forDate) {
     if (!label || !items) return;
 
     if (!day.length && !forDate) {
-      const next = allMatches.find(m => m.date >= today);
+      const next = upcoming[0];
       if (!next) return;
       label.textContent = 'Next game';
       items.innerHTML = '<div class="strip-empty" data-date="'+next.date+'">⚽ '+next.home+' vs '+next.away+' · '+fmtDate(next.date)+(next.time?' · '+next.time:'')+(next.round?' · '+next.round:'')+' — tap to filter</div>';
@@ -828,7 +880,7 @@ function updateStrip(forDate) {
             items.querySelectorAll('[data-date]:not(.active)').forEach(e => e.style.display = 'none');
             // Set specific match filter
             matchFilter = el.dataset.home && el.dataset.away
-              ? { home: decodeURIComponent(el.dataset.home), away: decodeURIComponent(el.dataset.away) }
+              ? { home: decodeURIComponent(el.dataset.home), away: decodeURIComponent(el.dataset.away), date: el.dataset.date }
               : null;
             doDate(el.dataset.date);
           }
@@ -877,6 +929,7 @@ async function loadVenues() {
       admission:  r.admission || '',
       ticketUrl:  r.ticket_url || r.ticketUrl || '',
       kidFriendly: (r.kidFriendly||r.kid_friendly||'').toUpperCase() === 'TRUE',
+      dates: (r.dates||'').split(',').map(d => d.trim()).filter(Boolean),
       _inactive: (r.active||'').toUpperCase() === 'FALSE',
     })).filter(v => !v._inactive);
     document.getElementById('loading').classList.add('hidden');
