@@ -718,11 +718,8 @@ function renderMobileList() {
         +'<div class="mob-detail-row"><span class="mob-detail-lbl">Team</span><span class="mob-detail-val">'+tbadge+'</span></div>'
         +(v.organizer ? '<div class="mob-detail-row"><span class="mob-detail-lbl">Organizer</span><span class="mob-detail-val">'+v.organizer+'</span></div>' : '')
         +(v.admission ? '<div class="mob-detail-row"><span class="mob-detail-lbl">Admission</span><span class="mob-detail-val">'+v.admission+'</span></div>' : '')
-        +(v.organizer?'<div class="mob-detail-row"><span class="mob-detail-lbl">Organizer</span><span class="mob-detail-val">'+v.organizer+'</span></div>':'')
-        +(v.admission?'<div class="mob-detail-row"><span class="mob-detail-lbl">Admission</span><span class="mob-detail-val">'+v.admission+'</span></div>':'')
         +'<div class="mob-detail-note">'+v.note+'</div>'
         +'<a class="mob-maps-btn" href="'+mapsUrl+'" target="_blank">📍 Open in Google Maps</a>'
-        +(v.isEvent&&v.ticketUrl?'<a class="mob-maps-btn" href="'+v.ticketUrl+'" target="_blank" style="background:'+(v.ticketed?'#791F1F':'#27500A')+';margin-top:6px;">'+(v.ticketed?'🎫 Get tickets':'🔗 Register free')+'</a>':'')
         +(v.ticketUrl ? '<a class="mob-maps-btn" href="'+v.ticketUrl+'" target="_blank" style="background:'+(v.ticketed?'var(--accent)':'#3B6D11')+';margin-top:6px;">'+(v.ticketed?'🎟 Get tickets':'🆓 Register free')+'</a>' : '')
       +'</div>';
     card.onclick = () => selectMobile(idx);
@@ -764,15 +761,18 @@ function selectMobile(idx) {
   if (!wasSelected) {
     const peekEl = document.getElementById('peek-strip');
     const mapEl  = document.getElementById('mob-map-wrap');
-    const peekH = peekEl ? peekEl.getBoundingClientRect().height : 120;
-    const mapH  = mapEl  ? mapEl.getBoundingClientRect().height  : 300;
-    // Offset lat so dot appears in upper 40% of visible map area
-    const visibleMapH = mapH - peekH;
-    const offsetPx = peekH + visibleMapH * 0.25;
-    const latPerPx = (0.0001 * (14 - 10 + 1));
-    const latOffset = (offsetPx / mapH) * latPerPx * 80;
+    const peekH = peekEl ? peekEl.getBoundingClientRect().height : 280;
+    const mapH  = mapEl  ? mapEl.getBoundingClientRect().height  : 400;
+    const visibleH = mapH - peekH;
+    const TARGET_ZOOM = 13; // zoomed out enough to show nearby venues alongside the selected one
+    // Mercator: degrees latitude per pixel at this zoom & latitude
+    const latRad = v.lat * Math.PI / 180;
+    const degPerPx = Math.cos(latRad) * 360 / (256 * Math.pow(2, TARGET_ZOOM));
+    // Pixel offset to move the dot from container-center to the top quarter of the visible area
+    const offsetPx = (mapH / 2) - (visibleH * 0.25);
+    const latOffset = offsetPx * degPerPx;
     renderMarkers();
-  mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat - latOffset], zoom: 14, duration: 500 });
+    mobileMap && mobileMap.flyTo({ center: [v.lng, v.lat - latOffset], zoom: TARGET_ZOOM, duration: 500 });
     setPeek(true);
     setTimeout(() => {
       const list = document.getElementById('mob-venue-list');
