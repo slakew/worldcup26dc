@@ -24,6 +24,7 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 #match-strip.visible { display: block; }
 .strip-inner { display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
 .strip-inner::-webkit-scrollbar { display: none; }
+#strip-items { display: flex; flex-wrap: nowrap; align-items: stretch; }
 .strip-label { font-size: 9px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--yellow); padding: 9px 14px; display: flex; align-items: center; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
 .strip-match { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-right: 1px solid rgba(255,255,255,0.06); white-space: nowrap; flex-shrink: 0; cursor: pointer; transition: background 0.15s; }
 .strip-match:hover, .strip-match.active { background: rgba(245,200,0,0.15); }
