@@ -489,7 +489,7 @@ function stripFlags(str) {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split('\n').map(l => l.replace(/\r/g, '')).filter(l => l.trim());
+  const lines = text.trim().split('\n').map(l => l.replace(/\r/g, '')).filter(l => l.replace(/[,\t"\s]/g, '').length > 0);
   if (lines.length < 2) return [];
   const delim = lines[0].indexOf('\t') !== -1 ? '\t' : ',';
   const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g, ''));
@@ -858,16 +858,8 @@ async function loadVenues() {
   venuesLoaded = true;
   try {
     const res = await fetch(SHEET_URL);
-    console.log('[DEBUG] fetch status:', res.status, res.ok);
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    const rawText = await res.text();
-    console.log('[DEBUG] raw text length:', rawText.length);
-    console.log('[DEBUG] first 300 chars:', rawText.slice(0, 300));
-    const allParsed = parseCSV(rawText);
-    console.log('[DEBUG] parsed rows total:', allParsed.length);
-    if (allParsed.length) console.log('[DEBUG] first parsed row:', JSON.stringify(allParsed[0]));
-    const rows = allParsed.filter(r => r.name && r.lat && r.lng);
-    console.log('[DEBUG] rows with name/lat/lng:', rows.length);
+    const rows = parseCSV(await res.text()).filter(r => r.name && r.lat && r.lng);
     if (!rows.length) throw new Error('No venues found');
     venues = rows.map(r => ({
       name: r.name, neighborhood: r.neighborhood||'',
@@ -887,8 +879,6 @@ async function loadVenues() {
       kidFriendly: (r.kidFriendly||r.kid_friendly||'').toUpperCase() === 'TRUE',
       _inactive: (r.active||'').toUpperCase() === 'FALSE',
     })).filter(v => !v._inactive);
-    console.log('[DEBUG] venues after active filter:', venues.length);
-    if (allParsed.length) console.log('[DEBUG] sample active values:', allParsed.slice(0,5).map(r => JSON.stringify(r.active)));
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('loading-mobile').style.display = 'none';
     renderMarkers(true); renderLists(); loadMatches();
