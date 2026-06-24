@@ -356,10 +356,12 @@ async function loadTeams() {
       const name = (r['Country Name'] || r['country name'] || r.name || '').trim();
       const code = (r['Country code'] || r['country code'] || r.code || '').trim();
       const flag = (r['Emoji Flag'] || r['emoji flag'] || r.flag || '').trim();
-      return { name, code, flag };
+      const eliminated = (r['eliminated'] || r['Eliminated'] || '').toUpperCase() === 'TRUE';
+      return { name, code, flag, eliminated };
     }).filter(t => t.name && t.name !== '#N/A' && t.flag && t.flag !== '#N/A' && t.code && t.code !== '#N/A');
-    // val matches venues team column format: "🇺🇸 USA" using code as short name
-    COUNTRIES = allTeams.map(t => ({ val: t.flag + ' ' + t.code, label: t.flag + ' ' + t.code, name: t.name }));
+    // Only show active (non-eliminated) teams in country filters
+    const activeTeams = allTeams.filter(t => !t.eliminated);
+    COUNTRIES = activeTeams.map(t => ({ val: t.flag + ' ' + t.code, label: t.flag + ' ' + t.code, name: t.name }));
     buildCountryPills();
   } catch(e) {
     console.warn('Teams load failed:', e);
@@ -484,6 +486,18 @@ const REGION_BOUNDS = {
   'VA': { center: [-77.15, 38.83], zoom: 10.5 },
 };
 const DC_DEFAULT = { center: [-77.04, 38.905], zoom: 11 };
+
+function isTeamEliminated(teamStr) {
+  if (!teamStr || !allTeams.length) return false;
+  const t = stripFlags(teamStr).toLowerCase().trim();
+  return allTeams.some(at => at.eliminated && (
+    at.name.toLowerCase() === t ||
+    at.code.toLowerCase() === t ||
+    (at.flag + ' ' + at.code).toLowerCase() === t ||
+    t.includes(at.name.toLowerCase()) ||
+    t.includes(at.code.toLowerCase())
+  ));
+}
 
 function stripFlags(str) {
   return (str || '').replace(/[\u{1F1E0}-\u{1F1FF}\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}]/gu, '').trim();
@@ -714,7 +728,7 @@ function renderMobileList() {
       '<div class="mob-card-header">'
         +'<div><div class="mob-card-name">'+v.name+'</div>'
         +'<div class="mob-card-hood">'+v.neighborhood+'</div>'
-        +'<div class="vc-tags">'+(v.team?'<span class="tag tag-team">'+v.team+'</span>':'<span class="tag tag-all">All teams</span>')+'<span class="tag tag-hours">'+v.hours+'</span></div>'
+        +'<div class="vc-tags">'+(v.team&&!isTeamEliminated(v.team)?'<span class="tag tag-team">'+v.team+'</span>':'<span class="tag tag-all">All teams</span>')+'<span class="tag tag-hours">'+v.hours+'</span></div>'
         +'</div>'
         +'<span class="mob-card-chevron">▾</span>'
       +'</div>'
@@ -737,7 +751,7 @@ function renderMobileList() {
 function renderLists() { renderDesktopList(); renderMobileList(); }
 
 function cardInner(v) {
-  const teamTag = v.team ? '<span class="tag tag-team">'+v.team+'</span>' : '<span class="tag tag-all">All teams</span>';
+  const teamTag = (v.team && !isTeamEliminated(v.team)) ? '<span class="tag tag-team">'+v.team+'</span>' : '<span class="tag tag-all">All teams</span>';
   const seriesTag = v.seriesName ? '<span class="tag tag-series">'+v.seriesName+'</span>' : '';
   const admissionTag = v.isEvent && v.admission ? (v.ticketed ? '<span class="tag tag-ticketed-event">'+v.admission+'</span>' : '<span class="tag tag-free-event">'+v.admission+'</span>') : '';
   return '<div class="vc-name">'+v.name+'</div>'
